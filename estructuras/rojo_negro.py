@@ -22,7 +22,7 @@ class RojoNegro:
     def _es_rojo(self, nodo):
         return self._color(nodo) == ROJO
     
-    # Insersión:
+    # Inserción:
     def insertar(self, clave):
         nuevo = NodoRN(clave)
         
