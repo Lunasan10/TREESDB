@@ -93,7 +93,7 @@ class RojoNegro:
                     
                     padre.color = NEGRO
                     abuelo.color = ROJO
-                    self._rotar_derecha(abuelo)
+                    self._rotar_izquierda(abuelo)
         
         self.raiz.color = NEGRO
     
@@ -160,8 +160,132 @@ class RojoNegro:
         self._en_orden_rec(nodo.izquierda, resultado)
         resultado.append(nodo.clave)
         self._en_orden_rec(nodo.derecha, resultado)
+        
+    # Eliminación:
+    def _minimo(self, nodo):
+        actual = nodo
+        while actual.izquierda is not None:
+            actual = actual.izquierda
+        return actual
     
-    # Imprimir.
+    def eliminar(self, clave):
+        nodo = self._buscar_nodo(self.raiz, clave)
+        if nodo is None:
+            return
+        self._eliminar_nodo(nodo)
+    
+    def _buscar_nodo(self, nodo, clave):
+        if nodo is None:
+            return None
+        if clave == nodo.clave:
+            return nodo
+        if clave < nodo.clave:
+            return self._buscar_nodo(nodo.izquierda, clave)
+        return self._buscar_nodo(nodo.derecha, clave)
+    
+    def _eliminar_nodo(self, nodo):
+        # Caso de dos hijos: Busca sucesor y delega
+        if nodo.izquierda is not None and nodo.derecha is not None:
+            sucesor = self._minimo(nodo.derecha)
+            nodo.clave = sucesor.clave
+            self._eliminar_nodo(sucesor)
+            return
+        
+        # Caso de un hijo o sin hijos
+        hijo  = nodo.derecha if nodo.izquierda is None else nodo.izquierda
+        
+        if hijo is not None:
+            # Caso: Nodo negro con hijo rojo
+            hijo.padre = nodo.padre
+            self._reemplazar(nodo, hijo)
+            hijo.color = NEGRO
+        elif nodo.padre is None:
+            # Caso: Nodo era la raíz y no tiene hijos
+            self.raiz = None
+        else:
+            # Caso: Nodo rojo sin hijos -> se quita directo 
+            # Caso: Nodo negro sin hijos -> se arregla la eliminación antes de quitar
+            if not self._es_rojo(nodo):
+                self._fix_delete(nodo)
+            self._reemplazar(nodo, None)
+    
+    def _reemplazar(self, nodo, hijo):
+        if nodo.padre is None:
+            self.raiz = hijo
+        elif nodo == nodo.padre.izquierda:
+            nodo.padre.izquierda = hijo
+        else: 
+            nodo.padre.derecha = hijo
+        if hijo is not None:
+            hijo.padre = nodo.padre
+    
+    def _fix_delete(self, nodo):
+        while nodo != self.raiz and not self._es_rojo(nodo):
+            padre = nodo.padre
+        
+            if nodo == padre.izquierda:
+                hermano = padre.derecha
+            
+                # Caso: Hermano rojo -> rotar para llegar a otro caso
+                if self._es_rojo(hermano):
+                    hermano.color = NEGRO
+                    padre.color = ROJO
+                    self._rotar_izquierda(padre)
+                    hermano = padre.derecha
+                
+                # Caso: Hermano negro, sobrinos negros -> recolorear y subir
+                if not self._es_rojo(hermano.izquierda) and not self._es_rojo(hermano.derecha):
+                    hermano.color = ROJO
+                    nodo = padre
+                
+                else:
+                    # Caso: Hermano negro, sobrino cualq.color/negro -> rotar hermano
+                    if not self._es_rojo(hermano.derecha):
+                        if hermano.izquierda is not None:
+                            hermano.izquierda.color = NEGRO
+                        hermano.color = ROJO
+                        self._rotar_derecha(hermano)
+                        hermano = padre.derecha
+                        
+                    # Caso: Hermano negro, hijo cualq.color/rojo -> rotar padre
+                    hermano.color = padre.color
+                    padre.color = NEGRO
+                    if hermano.derecha is not None:
+                        hermano.derecha.color = NEGRO
+                    self._rotar_izquierda(padre)
+                    nodo = self.raiz
+            # Casos simétricos
+            else:
+                hermano = padre.izquierda
+                
+                if self._es_rojo(hermano):
+                    hermano.color = NEGRO
+                    padre.color = ROJO
+                    self._rotar_derecha(padre)
+                    hermano = padre.izquierda
+                
+                if not self._es_rojo(hermano.derecha) and not self._es_rojo(hermano.izquierda):
+                    hermano.color = ROJO
+                    nodo = padre
+                
+                else:
+                    if not self._es_rojo(hermano.izquierda):
+                        if hermano.derecha is not None:
+                            hermano.derecha.color = NEGRO
+                        hermano.color = ROJO
+                        self._rotar_izquierda(hermano)
+                        hermano = padre.izquierda
+                    
+                    hermano.color = padre.color
+                    padre.color = NEGRO
+                    if hermano.izquierda is not None:
+                        hermano.izquierda.color = NEGRO
+                    self._rotar_derecha(padre)
+                    nodo = self.raiz
+            
+        nodo.color = NEGRO
+    
+    # Imprimir:
     def _imprimir_arbol(self, nodo=None, prefijo="", es_derecha=True, primer_llamado=True):
         if primer_llamado:
             nodo = self.raiz
