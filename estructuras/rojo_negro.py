@@ -43,7 +43,7 @@ class RojoNegro:
                 nuevo.padre = actual
             else:
                 self._insertar_bst(actual.izquierda, nuevo)
-        else:
+        elif nuevo.clave > actual.clave:
             if actual.derecha is None:
                 actual.derecha = nuevo
                 nuevo.padre = actual
