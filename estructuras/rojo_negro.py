@@ -135,7 +135,7 @@ class RojoNegro:
         y.derecha = z
         z.padre = y
     
-    # Busqueda:
+    # Búsqueda:
     def buscar(self, clave):
         return self._buscar_rec(self.raiz, clave)
     
