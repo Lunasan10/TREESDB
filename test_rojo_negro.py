@@ -1,6 +1,6 @@
 # test_rojo_negro.py
 
-from estructuras.rojo_negro import RojoNegro, NEGRO, ROJO
+from estructuras.rojo_negro import RojoNegro
 
 def contar_negros_camino(arbol, nodo):
     if nodo is None:
