@@ -29,26 +29,26 @@ class RojoNegro:
         if self.raiz is None:
             self.raiz = nuevo
         else:
-            self._insertar_bts(self.raiz, nuevo)
+            self._insertar_bst(self.raiz, nuevo)
             
         self._fix_insercion(nuevo)
         
         # La raíz siempre queda negra
         self.raiz.color = NEGRO
         
-    def _insertar_bts(self, actual, nuevo):
+    def _insertar_bst(self, actual, nuevo):
         if nuevo.clave < actual.clave:
             if actual.izquierda is None:
                 actual.izquierda = nuevo
                 nuevo.padre = actual
             else:
-                self._insertar_bts(actual.izquierda, nuevo)
+                self._insertar_bst(actual.izquierda, nuevo)
         else:
             if actual.derecha is None:
                 actual.derecha = nuevo
                 nuevo.padre = actual
             else:
-                self._insertar_bts(actual.derecha, nuevo)
+                self._insertar_bst(actual.derecha, nuevo)
     
     def _fix_insercion(self, nodo):
         while nodo != self.raiz and self._es_rojo(nodo.padre):
