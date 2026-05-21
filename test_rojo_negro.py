@@ -7,6 +7,8 @@ def contar_negros_camino(arbol, nodo):
         return 1
     izq = contar_negros_camino(arbol, nodo.izquierda)
     der = contar_negros_camino(arbol, nodo.derecha)
+    if izq == -1 or der == -1:
+        return -1
     if izq != der:
         return -1
     return izq + (1 if not arbol._es_rojo(nodo) else 0)
