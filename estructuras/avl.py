@@ -38,7 +38,7 @@ class AVL:
             return self._buscar_rec(nodo.izquierda,clave)
         return self._buscar_rec(nodo.derecha,clave)
     
-    # Inserción: (sin rotaciones aún)
+    # Inserción:
     
     def insertar(self, clave):
         self.raiz = self._insertar_rec(self.raiz, clave)
@@ -49,15 +49,60 @@ class AVL:
         
         if clave < nodo.clave:
             nodo.izquierda = self._insertar_rec(nodo.izquierda, clave)
-        elif clave > nodo.clave:
-            nodo.derecha = self._insertar_rec(nodo.derecha, clave)
         else:
-            # Al tratarse de una Base de Datos, no se permiten claves duplicadas
-            return nodo 
+            nodo.derecha = self._insertar_rec(nodo.derecha, clave)
         
-        self._actualizar_altura(nodo)
-        return nodo
+        return self._balancear(nodo)
     
+    # Rotaciones:
+    def _rotar_derecha(self, z):
+        y = z.izquierda
+        hijo_derecha_de_y = y.derecha
+        
+        # Rotación:
+        y.derecha = z
+        z.izquierda = hijo_derecha_de_y
+        
+        self._actualizar_altura(z)
+        self._actualizar_altura(y)
+        return y
+    
+    def _rotar_izquierda(self, z):
+        y = z.derecha
+        hijo_izquierda_de_y = y.izquierda
+        
+        # Rotación:
+        y.izquierda = z
+        z.derecha = hijo_izquierda_de_y
+        
+        self._actualizar_altura(z)
+        self._actualizar_altura(y)
+        return y
+    
+    def _balancear(self, z):
+        self._actualizar_altura(z)
+        fb = self._factor_de_equilibrio(z)
+        
+        # LL 
+        if fb == -2 and self._factor_de_equilibrio(z.izquierda) <= 0:
+            return self._rotar_derecha(z)
+
+        # LR 
+        if fb == -2 and self._factor_de_equilibrio(z.izquierda) > 0:
+            z.izquierda = self._rotar_izquierda(z.izquierda)
+            return self._rotar_derecha(z)
+
+        # RR 
+        if fb == 2 and self._factor_de_equilibrio(z.derecha) >= 0:
+            return self._rotar_izquierda(z)
+
+        # RL
+        if fb == 2 and self._factor_de_equilibrio(z.derecha) < 0:
+            z.derecha = self._rotar_derecha(z.derecha)
+            return self._rotar_izquierda(z)
+            
+        return z
+
     # Recorrido:
     def en_orden(self):
         resultado = []
@@ -70,6 +115,40 @@ class AVL:
         self._en_orden_rec(nodo.izquierda, resultado)
         resultado.append(nodo.clave)
         self._en_orden_rec(nodo.derecha, resultado)
+        
+    # Eliminación:
+    def _minimo(self, nodo):
+        actual = nodo
+        while actual.izquierda is not None:
+            actual = actual.izquierda
+        return actual
+    
+    def eliminar(self, clave):
+        self.raiz = self._eliminar_rec(self.raiz, clave)
+        
+    def _eliminar_rec(self, nodo, clave):
+        if nodo is None:
+            return None
+        
+        if clave < nodo.clave:
+            nodo.izquierda = self._eliminar_rec(nodo.izquierda, clave)
+        elif clave > nodo.clave: 
+            nodo.derecha = self._eliminar_rec(nodo.derecha, clave)
+        else:
+            # Nodo con un solo hijo o sin hijos
+            if nodo.izquierda is None:
+                return nodo.derecha
+            elif nodo.derecha is None:
+                return nodo.izquierda
+            
+            # Nodo con dos hijos
+            sucesor = self._minimo(nodo.derecha) # -> Menor del subárbol derecho
+            nodo.clave = sucesor.clave
+            nodo.derecha = self._eliminar_rec(nodo.derecha, sucesor.clave)
+            
+        return self._balancear(nodo)
+            
+    
         
     # Imprimir:
     def _imprimir_arbol(self, nodo=None, prefijo="", es_derecha=True, primer_llamado=True):
