@@ -32,7 +32,7 @@ class ArbolB:
     def insertar(self, clave):
         raiz = self.raiz
         
-        # Se hae split en caso de que la raíz este llena
+        # Se hace split en caso de que la raíz este llena
         if len(raiz.claves) == 2 * self.t -1:
             nueva_raiz = NodoB(hoja=False)
             nueva_raiz.hijos.append(self.raiz)
@@ -148,7 +148,7 @@ class ArbolB:
             nodo = nodo.hijos[0]
         return nodo.claves[0]
 
-    def merge(self, padre, i):
+    def _merge(self, padre, i):
         hijo_izquierdo = padre.hijos[i]
         hijo_derecho = padre.hijos[i + 1]
         clave_media = padre.claves.pop(i)
@@ -166,12 +166,23 @@ class ArbolB:
             self._robar_derecha(padre, i)
         else:
             if i < len(padre.hijos) - 1:
-                assert len(padre.hijos[i].claves) == t - 1, f"hijo izq tiene {len(padre.hijos[i].claves)} claves antes de merge"
-                assert len(padre.hijos[i + 1].claves) == t - 1, f"hijo der tiene {len(padre.hijos[i+1].claves)} claves antes de merge"
-                self.merge(padre, i)
+                if len(padre.hijos[i].claves) != t - 1:
+                     raise ValueError(
+                         f"hijo izq tiene {len(padre.hijos[i].claves)} claves antes de merge"
+                     )
+                if len(padre.hijos[i + 1].claves) != t - 1:
+                    raise ValueError(
+                        f"hijo der tiene {len(padre.hijos[i + 1].claves)} claves antes de merge"
+                    )
             else:
-                assert len(padre.hijos[i - 1].claves) == t - 1
-                assert len(padre.hijos[i].claves) == t - 1
+                if len(padre.hijos[i - 1].claves) != t - 1:
+                     raise ValueError(
+                         f"hijo izq tiene {len(padre.hijos[i - 1].claves)} claves antes de merge"
+                     )
+                if len(padre.hijos[i].claves) != t - 1:
+                    raise ValueError(
+                        f"hijo der tiene {len(padre.hijos[i].claves)} claves antes de merge"
+                    )
                 self.merge(padre, i - 1)
     
     def _robar_izquierda(self, padre, i):

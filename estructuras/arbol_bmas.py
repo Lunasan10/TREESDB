@@ -42,7 +42,7 @@ class ArbolBMas:
         nuevo.siguiente = hijo.siguiente
         hijo.siguiente  = nuevo
 
-        # la primera clave del nuevo sube al padre -> se compia
+        # la primera clave del nuevo sube al padre -> se copia
         padre.claves.insert(i, nuevo.claves[0])
         padre.hijos.insert(i + 1, nuevo)
 
