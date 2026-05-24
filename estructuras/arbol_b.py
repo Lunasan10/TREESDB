@@ -142,11 +142,6 @@ class ArbolB:
         while not nodo.hoja:
             nodo = nodo.hijos[-1]
         return nodo.claves[-1]
-            
-    def _minimo(self, nodo):
-        while not nodo.hoja:
-            nodo = nodo.hijos[0]
-        return nodo.claves[0]
 
     def merge(self, padre, i):
         hijo_izquierdo = padre.hijos[i]
