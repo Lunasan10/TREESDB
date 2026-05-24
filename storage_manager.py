@@ -19,11 +19,11 @@ class StorageManager:
         self._siguiente_id = 1
     
     # INSERT
-    def insert(self, datos:dict):
+    def insert(self, datos: dict):
         id_nuevo = self._siguiente_id
         self._siguiente_id += 1
         
-        registro = {"id": id_nuevo, **datos}
+        registro = {**datos, "id": id_nuevo}
         self.registros[id_nuevo] = registro
         
         # B+ guarda el id en el almacén principal
@@ -35,13 +35,13 @@ class StorageManager:
         # B registra el bloque
         self.b.insertar(id_nuevo)
         
-        # Roji-negro: actualizar índices secundarios existentes
+        # Rojo-negro: actualizar índices secundarios existentes
         for campo, indice in self.indices.items():
             valor = datos.get(campo)
             if valor is not None:
                 if valor not in indice:
                     indice[valor] = []
-                    self.rn.insertar(hash(str(campo) + str(valor)) % 100000)
+                    self.rn.insertar(f"{campo}:{valor!r}")
                 indice[valor].append(id_nuevo)
         
         return registro
@@ -118,7 +118,7 @@ class StorageManager:
             if valor is not None:
                 if valor not in indice:
                     indice[valor] = []
-                    self.rn.insertar(hash(str(campo) + str(valor)) % 100000)
+                    self.rn.insertar(f"{campo}:{valor!r}")
                 indice[valor].append(id_reg)
         
         self.indices[campo] = indice
