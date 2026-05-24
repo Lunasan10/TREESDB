@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TREEDB - Base de Datos</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+</head>
+<body>
+<div id="app">
+
+  <!-- ── HEADER ── -->
+  <header id="header">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 28 28" fill="none">
+        <circle cx="14" cy="5"  r="3" fill="var(--accent)"/>
+        <circle cx="7"  cy="17" r="3" fill="var(--accent)" opacity=".8"/>
+        <circle cx="21" cy="17" r="3" fill="var(--accent)" opacity=".8"/>
+        <circle cx="3"  cy="25" r="2.5" fill="var(--accent)" opacity=".5"/>
+        <circle cx="11" cy="25" r="2.5" fill="var(--accent)" opacity=".5"/>
+        <circle cx="17" cy="25" r="2.5" fill="var(--accent)" opacity=".5"/>
+        <circle cx="25" cy="25" r="2.5" fill="var(--accent)" opacity=".5"/>
+        <line x1="14" y1="8"  x2="7"  y2="14" stroke="var(--accent)" stroke-width="1" opacity=".5"/>
+        <line x1="14" y1="8"  x2="21" y2="14" stroke="var(--accent)" stroke-width="1" opacity=".5"/>
+        <line x1="7"  y1="20" x2="3"  y2="22" stroke="var(--accent)" stroke-width="1" opacity=".4"/>
+        <line x1="7"  y1="20" x2="11" y2="22" stroke="var(--accent)" stroke-width="1" opacity=".4"/>
+        <line x1="21" y1="20" x2="17" y2="22" stroke="var(--accent)" stroke-width="1" opacity=".4"/>
+        <line x1="21" y1="20" x2="25" y2="22" stroke="var(--accent)" stroke-width="1" opacity=".4"/>
+      </svg>
+      <span class="logo-text">TREEDB</span>
+      <span class="logo-tagline"> Base de datos basada en árboles auto-balanceados</span>
+    </div>
+    <div class="header-right">
+        <select class="mode-selector" id="mode-select" onchange="cambiarModo(this.value)" title="Selecciona el tipo de árbol que deseas">
+                <option value="auto">🌿 ATOMÁTICO</option>
+                <option value="avl">🟢 AVL</option>
+                <option value="rn">🔴 Rojo-Negro</option>
+                <option value="b">🟤 B</option>
+                <option value="bmas">🔵 B+</option>
+            </select>
+        <button id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">🌙</span>
+        </button>
+        <button id="btn-about" onclick="toggleAbout()" title="Acerca de TREEDB">
+        <span>?</span>
+        </button>
+    </div>
+  </header>
+
+  <!-- ── TABS ── -->
+  <div id="tabs">
+    <div class="tab active" data-tab="avl" onclick="setTab('avl')">
+      <span class="tab-dot" style="background:var(--avl)"></span>AVL
+    </div>
+    <div class="tab" data-tab="rn" onclick="setTab('rn')">
+      <span class="tab-dot" style="background:var(--rn-red)"></span>Rojo-Negro
+    </div>
+    <div class="tab" data-tab="b" onclick="setTab('b')">
+      <span class="tab-dot" style="background:var(--b-tree)"></span>B
+    </div>
+    <div class="tab" data-tab="bmas" onclick="setTab('bmas')">
+      <span class="tab-dot" style="background:var(--bplus)"></span>B+
+    </div>
+  </div>
+
+  <!-- ── CENTRO ── -->
+  <div id="center">
+
+    <!-- Visualizador -->
+    <div id="visualizador">
+      <div class="tree-watermark">🌳</div>
+      <div id="op-badge" class="op-badge">INSERTING...</div>
+      <pre id="tree-display" style="display:none"></pre>
+      <div id="tree-empty" class="tree-empty">
+        <span>Prueba <strong>INSERT nombre:Ana edad:25</strong></span></div>
+    </div>
+
+    <!-- Log -->
+    <aside id="log-panel">
+      <div class="log-header">🌿 Historial de Crecimiento del árbol</div>
+      <div id="log-entries"></div>
+    </aside>
+
+  </div>
+
+  <!-- ── BOTTOM ── -->
+  <div id="bottom">
+    <div id="console-row">
+      <span class="console-prompt">&gt; TREEDB ~</span>
+      <input id="cmd-input" type="text"
+             placeholder="INSERT nombre:Ana edad:25 ciudad:Bogotá"
+             autocomplete="off" spellcheck="false">
+      <button id="btn-run" onclick="ejecutar()">▶ RUN</button>
+    </div>
+
+    <div class="cmd-chips">
+      <span style="color:var(--text-faint);font-size:.6rem;margin-right:.2rem">→</span>
+      <span class="chip" onclick="usarChip('INSERT')">INSERT</span>
+      <span class="chip" onclick="usarChip('SELECT')">SELECT</span>
+      <span class="chip" onclick="usarChip('RANGE')">RANGE</span>
+      <span class="chip" onclick="usarChip('DELETE')">DELETE</span>
+      <span class="chip" onclick="usarChip('INDEX')">INDEX</span>
+      <span class="chip" onclick="usarChip('HELP')">HELP</span>
+    </div>
+
+    <div id="resultado-panel">
+      <span class="msg-empty">Ejecuta un comando para ver los resultados aquí...</span>
+    </div>
+  </div>
+
+  <!-- ── STATS BAR ── -->
+  <div id="stats-bar">
+    <div class="stat-group">
+      <div class="stat">🌳 Registros: <span class="stat-val" id="s-registros">0</span></div>
+      <div class="stat">🌲 Altura AVL: <span class="stat-val" id="s-altura">0</span></div>
+      <div class="stat">🌷 Índices: <span class="stat-val" id="s-indices">ninguno</span></div>
+    </div>
+    <div class="stat-group">
+      <div class="stat" style="color:var(--text-faint);font-size:.58rem">TREEDB v1.0 · Luna | Nicolás | Geraldine</div>
+    </div>
+  </div>
+
+</div>
+<script src="/static/main.js"></script>
+<div id="modal-about" style="display:none">
+  <div id="modal-overlay" onclick="toggleAbout()"></div>
+  <div id="modal-box">
+    <div id="modal-header">
+      <span>🌳 Acerca de TREEDB</span>
+      <button onclick="toggleAbout()">✕</button>
+    </div>
+    <div id="modal-body">
+      <h3>¿Qué es TREEDB?</h3>
+      <p>TREEDB es un motor de base de datos que busca organizar tu información de manera eficiente, basado en 4 tipos de árboles autobalanceados: AVL, Rojo-Negro, B y B+.</p>
+      <p>✨ Como un archivero que siempre sabe exactamente dónde está cada cosa.</p>
+
+      <h3>¿Para qué usarlo?</h3>
+      <p>Guarda cualquier tipo de información, búscala en segundos y observa en tiempo real cómo el sistema la organiza por dentro.</p>
+      <h3>Los 4 árboles:</h3>
+      <p>🟢 <strong>AVL</strong> — el buscador. Encuentra cualquier dato exacto al instante: índice primario, búsqueda exacta ultrarrápida</p>
+      <p>🔴 <strong>Rojo-Negro</strong> — el clasificador. Organiza los datos por categorías para búsquedas más rápidas: índices secundarios, inserciones masivas</p>
+      <p>🟤 <strong>B</strong> — el archivero. Decide cómo agrupar la información para que ocupe menos espacio: organización interna de bloques</p>
+      <p>🔵 <strong>B+</strong> — la biblioteca. Guarda todo y permite encontrar rangos completos, como "todos los mayores de 20 años": almacén principal, soporta búsquedas por rango</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
