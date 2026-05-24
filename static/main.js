@@ -18,6 +18,26 @@ const CHIP_EXAMPLES = {
 
 let tabActual = 'avl';
 
+function cambiarModo(valor) {
+  if (valor === 'auto') {
+    ejecutarSilencioso('USE TREE auto');
+    return;
+  }
+  // cambia el tab visual y notifica al backend
+  setTab(valor);
+  ejecutarSilencioso(`USE TREE ${valor}`);
+}
+
+async function ejecutarSilencioso(cmd) {
+  try {
+    await fetch('/query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ comando: cmd })
+    });
+  } catch(e) {}
+}
+
 /* ── TEMA ──────────────────────────────────────────── */
 function initTheme() {
   if (localStorage.getItem('theme') === 'light') {
@@ -75,24 +95,29 @@ async function mostrarArbolActual() {
 }
 
 function colorearArbol(texto, tab) {
+  const seguro = texto
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
   if (tab === 'rn') {
-    return texto
+    return seguro
       .replace(/\[(\d+)\|R\]/g, '<span class="nr">[$1|R]</span>')
       .replace(/\[(\d+)\|N\]/g, '<span class="nn">[$1|N]</span>');
   }
   if (tab === 'avl') {
-    return texto.replace(/\[(\d+)\]/g, '<span class="na">[$1]</span>');
+    return seguro.replace(/\[(\d+)\]/g, '<span class="na">[$1]</span>');
   }
   if (tab === 'b') {
-    return texto.replace(/\[([^\]]+)\]/g, '<span class="nb">[$1]</span>');
+    return seguro.replace(/\[([^\]]+)\]/g, '<span class="nb">[$1]</span>');
   }
   if (tab === 'bmas') {
-    return texto
+    return seguro
       .replace(/\[I\]/g, '<span class="nn">[I]</span>')
       .replace(/\[H\]/g, '<span class="np">[H]</span>')
       .replace(/→/g, '<span class="na">→</span>');
   }
-  return texto;
+  return seguro;
 }
 
 /* ── QUERY ─────────────────────────────────────────── */
@@ -130,6 +155,15 @@ async function ejecutar() {
 function mostrarResultado(data, cmd) {
   const div = document.getElementById('resultado-panel');
 
+  // use_tree primero — cambia tab y muestra mensaje
+  if (data.tipo === 'use_tree') {
+    if (data.arbol && data.arbol !== 'auto') {
+      setTab(data.arbol);
+    }
+    div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
+    return;
+  }
+
   if (data.error) {
     div.innerHTML = `<span class="msg-err">❌ ${escapeHtml(data.error)}</span>`;
     return;
@@ -151,9 +185,9 @@ function mostrarResultado(data, cmd) {
   }
 
   const cols = Object.keys(data.datos[0]);
-  let html = `<table><thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+  let html = `<table><thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead><tbody>`;
   data.datos.forEach(r => {
-    html += `<tr>${cols.map(c => `<td>${r[c] ?? ''}</td>`).join('')}</tr>`;
+    html += `<tr>${cols.map(c => `<td>${escapeHtml(String(r[c] ?? ''))}</td>`).join('')}</tr>`;
   });
   html += '</tbody></table>';
   div.innerHTML = html;

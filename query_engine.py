@@ -29,7 +29,7 @@ class QueryEngine:
             elif op == "USE" and len(partes) > 1 and partes[1].upper() == "TREE":
                 return self._use_tree(partes[2:])
             elif op == "INFO":
-                return {"tipo": "info", "datos": self.sm.info()}
+                return {"tipo": "info", "datos": [self.sm.info()]}
             elif op == "HELP":
                 return self._help(partes[1:])
             else:
@@ -40,11 +40,11 @@ class QueryEngine:
     # parsers
     def _insert(self, partes):
         if not partes:
-            return {"error": "INSERT requiere campos. Ej: INSERT nombre: Anad edad: 25"}
+            return {"error": "INSERT requiere campos. Ej: INSERT nombre:Ana edad:25"}
         datos = {}
         for parte in partes:
             if ":" not in parte:
-                return {"error": f"Fromaro inválido: '{parte}'. Usa campo:valor"}
+                return {"error": f"Formato inválido: '{parte}'. Usa campo:valor"}
             campo, valor = parte.split(":", 1)
             try:
                 valor = int(valor)
@@ -74,7 +74,7 @@ class QueryEngine:
 
     def _range(self, partes):
         if len(partes) < 3:
-            return {"error": "Fromato: RANGE campo inicio fin"}
+            return {"error": "Formato: RANGE campo inicio fin"}
         campo = partes[0]
         try:
             inicio = float(partes[1])
@@ -85,7 +85,9 @@ class QueryEngine:
         return {"tipo": "range", "datos": resultado}
     
     def _delete(self, partes):
-        if len(partes) > 3 or partes[1] != "=":
+        if len(partes) != 3:
+            return {"error": "Formato: DELETE campo = valor"}
+        if partes[1] != "=":
             return {"error": "Formato: DELETE campo = valor"}
         campo = partes[0]
         valor = partes[2]
@@ -97,7 +99,7 @@ class QueryEngine:
             except ValueError:
                 pass
         n = self.sm.delete(campo, valor)
-        return {"tipo": "delete", "datos": [], "mensajes": f"{n} registro(s) eliminado(s)"}
+        return {"tipo": "delete", "datos": [], "mensaje": f"{n} registro(s) eliminado(s)"}
     
     def _index(self, partes):
         if not partes:
@@ -112,12 +114,16 @@ class QueryEngine:
         return {"tipo": "show_tree", "arbol": partes[0].lower(), "datos": []}
     
     def _use_tree(self, partes):
-        arboles = {"avl", "rn", "b", "bmas", "b+", "auto"}
+        arboles = {"avl", "rn", "b", "bmas", "auto"}
         if not partes or partes[0].lower() not in arboles:
-            return {"error": f"Opciones: {arboles}"}
+            return {"error": f"Opciones: {sorted(arboles)}"}
         self.arbol_activo = partes[0].lower()
-        return {"tipo": "use_tree", "datos": [],
-                "mensaje": f"Árbol activo: {self.arbol_activo}"}
+        return {
+            "tipo":    "use_tree",
+            "arbol":   self.arbol_activo,
+            "datos":   [],
+            "mensaje": f"Árbol activo: {self.arbol_activo.upper()}"
+        }
     
     def _help(self, partes):
         temas = {

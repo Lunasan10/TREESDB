@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TREEDB - Base de Datos</title>
   <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}">
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
 </head>
 <body>
 <div id="app">
@@ -33,7 +33,7 @@
     </div>
     <div class="header-right">
         <select class="mode-selector" id="mode-select" onchange="cambiarModo(this.value)" title="Selecciona el tipo de árbol que deseas">
-                <option value="auto">🌿 ATOMATICO</option>
+                <option value="auto">🌿 ATOMÁTICO</option>
                 <option value="avl">🟢 AVL</option>
                 <option value="rn">🔴 Rojo-Negro</option>
                 <option value="b">🟤 B</option>
@@ -42,7 +42,7 @@
         <button id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
             <span id="theme-icon">🌙</span>
         </button>
-        <button id="btn-about" onclick="toggleAbout()" title="Acerca de TRESDB">
+        <button id="btn-about" onclick="toggleAbout()" title="Acerca de TREEDB">
         <span>?</span>
         </button>
     </div>
@@ -73,9 +73,7 @@
       <div id="op-badge" class="op-badge">INSERTING...</div>
       <pre id="tree-display" style="display:none"></pre>
       <div id="tree-empty" class="tree-empty">
-        <span class="ei">🌱</span>
-        <span>Plant a seed — prueba <strong>INSERT nombre:Ana edad:25</strong></span>
-      </div>
+        <span>Prueba <strong>INSERT nombre:Ana edad:25</strong></span></div>
     </div>
 
     <!-- Log -->

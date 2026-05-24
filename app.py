@@ -1,18 +1,28 @@
+import io
+from contextlib import redirect_stdout
 from flask import Flask, render_template, request, jsonify
 from query_engine import QueryEngine
-import io, sys
 
 app = Flask(__name__)
 qe  = QueryEngine()
 
 def capturar_arbol(arbol):
-    """Captura la salida de _imprimir_arbol como lista de líneas"""
     buffer = io.StringIO()
-    sys.stdout = buffer
-    arbol._imprimir_arbol()
-    sys.stdout = sys.__stdout__
+    try:
+        with redirect_stdout(buffer):
+            arbol._imprimir_arbol()
+    except Exception as e:
+        print(f"[TRESDB] Error capturando árbol: {e}")
+        return []
+    
     salida = buffer.getvalue()
-    return [l for l in salida.split('\n') if l.strip()]
+    lineas = [l for l in salida.split('\n') if l.strip()]
+    
+    # árbol vacío → devolver [] para que el frontend muestre el placeholder
+    if len(lineas) == 1 and 'vacío' in lineas[0].lower():
+        return []
+    
+    return lineas
 
 @app.route("/")
 def index():
@@ -20,7 +30,10 @@ def index():
 
 @app.route("/query", methods=["POST"])
 def query():
-    comando = request.json.get("comando", "")
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict):
+        data = {}
+    comando = data.get("comando", "")
     resultado = qe.ejecutar(comando)
     return jsonify(resultado)
 
@@ -31,19 +44,22 @@ def info():
 @app.route("/tree/<tab>")
 def get_tree(tab):
     sm = qe.sm
+    arboles = {
+        'avl':  sm.avl,
+        'rn':   sm.rn,
+        'b':    sm.b,
+        'bmas': sm.bmas,
+    }
+    arbol = arboles.get(tab)
+    if arbol is None:
+        return jsonify({"lineas": []})
+    
     try:
-        if tab == 'avl':
-            lineas = capturar_arbol(sm.avl)
-        elif tab == 'rn':
-            lineas = capturar_arbol(sm.rn)
-        elif tab == 'b':
-            lineas = capturar_arbol(sm.b)
-        elif tab == 'bmas':
-            lineas = capturar_arbol(sm.bmas)
-        else:
-            lineas = []
-    except:
+        lineas = capturar_arbol(arbol)
+    except Exception as e:
+        app.logger.exception("Error al obtener el árbol para tab '%s': %s", tab, e)
         lineas = []
+    
     return jsonify({"lineas": lineas})
 
 if __name__ == "__main__":
