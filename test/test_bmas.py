@@ -1,4 +1,3 @@
-# test_bmas.py
 from estructuras.arbol_bmas import ArbolBMas
 import random
 
