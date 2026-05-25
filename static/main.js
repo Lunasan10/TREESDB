@@ -180,7 +180,7 @@ function mostrarResultado(data, cmd) {
   }
 
   if (data.tipo === 'help') {
-    div.innerHTML = `<span class="msg-info">${escapeHtml(data.mensaje)}</span>`;
+    div.innerHTML = renderHelp(data.mensaje);
     return;
   }
 
@@ -201,6 +201,41 @@ function mostrarResultado(data, cmd) {
   });
   html += '</tbody></table>';
   div.innerHTML = html;
+}
+
+function renderHelp(texto) {
+  const lineas = texto.split('\n');
+  let html = '<div class="help-panel">';
+
+  lineas.forEach(linea => {
+    const t = linea.trim();
+    if (!t) {
+      html += '<div class="help-space"></div>';
+    } else if (t.startsWith('🌿') || t.startsWith('🌳')) {
+      html += `<div class="help-title">${escapeHtml(t)}</div>`;
+    } else if (t.startsWith('🌱') || t.startsWith('🔍') ||
+               t.startsWith('🍂') || t.startsWith('↔')  ||
+               t.startsWith('📌') || t.startsWith('AVL') ||
+               t.startsWith('R-N') || t.startsWith('B+') ||
+               t.startsWith('B ')) {
+      const [cmd, ...resto] = t.split('→');
+      html += `<div class="help-row">
+        <span class="help-cmd">${escapeHtml(cmd.trim())}</span>
+        ${resto.length ? `<span class="help-desc">→ ${escapeHtml(resto.join('→').trim())}</span>` : ''}
+      </div>`;
+    } else if (t.includes('INSERT') || t.includes('SELECT') ||
+               t.includes('RANGE')  || t.includes('DELETE') ||
+               t.includes('INDEX')  || t.includes('SHOW')   ||
+               t.includes('USE')    || t.includes('INFO')   ||
+               t.includes('HELP')) {
+      html += `<div class="help-example"><span class="help-prompt">~</span> ${escapeHtml(t)}</div>`;
+    } else {
+      html += `<div class="help-line">${escapeHtml(t)}</div>`;
+    }
+  });
+
+  html += '</div>';
+  return html;
 }
 
 /* ── LOG ───────────────────────────────────────────── */
