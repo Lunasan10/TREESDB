@@ -132,23 +132,23 @@ class QueryEngine:
 
     def _show(self, partes):
         if not partes:
-            return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE(S)"}
+            return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE|TABLES"}
         objetivo = partes[0].upper()
         if objetivo == "TREE":
             return self._show_tree(partes[1:])
         if objetivo in {"TABLE", "TABLES"}:
             return self._show_tables()
-        return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE(S)"}
+        return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE|TABLES"}
 
     def _use(self, partes):
         if not partes:
-            return {"error": "Uso: USE TREE <árbol> | USE TABLE(S) <nombre>"}
+            return {"error": "Uso: USE TREE <árbol> | USE TABLE|TABLES <nombre>"}
         objetivo = partes[0].upper()
         if objetivo == "TREE":
             return self._use_tree(partes[1:])
         if objetivo in {"TABLE", "TABLES"}:
             return self._use_table(partes[1:])
-        return {"error": "Uso: USE TREE <árbol> | USE TABLE(S) <nombre>"}
+        return {"error": "Uso: USE TREE <árbol> | USE TABLE|TABLES <nombre>"}
     
     def _show_tree(self, partes):
         arboles = {"avl", "rn", "b", "bmas", "b+"}
