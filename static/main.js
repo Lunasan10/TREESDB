@@ -64,23 +64,26 @@ function setTab(tab) {
   document.querySelectorAll('.tab').forEach(t => {
     t.classList.toggle('active', t.dataset.tab === tab);
   });
-  mostrarArbolActual();
+  mostrarArbolActual(false);
 }
 
 /* ── ÁRBOL EN VISUALIZADOR ─────────────────────────── */
-async function mostrarArbolActual() {
+async function mostrarArbolActual(animar = false) {
   const badge = document.getElementById('op-badge');
-  badge.textContent = 'LOADING...';
-  badge.style.display = 'block';
+  const disp  = document.getElementById('tree-display');
+  const empty = document.getElementById('tree-empty');
+
+  if (animar) {
+    badge.style.display = 'block';
+  }
 
   try {
-    const res  = await fetch(`/tree/${tabActual}`);
+    const res  = await fetch(`/tree-json/${tabActual}`);
     const data = await res.json();
-    const disp = document.getElementById('tree-display');
-    const empty = document.getElementById('tree-empty');
 
-    if (data.lineas && data.lineas.length > 0) {
-      disp.innerHTML = colorearArbol(data.lineas.join('\n'), tabActual);
+    if (data.arbol) {
+      const svg = renderizarSVG(data.arbol, tabActual);
+      disp.innerHTML = svg || '';
       disp.style.display = 'block';
       empty.style.display = 'none';
     } else {
@@ -88,9 +91,9 @@ async function mostrarArbolActual() {
       empty.style.display = 'flex';
     }
   } catch(e) {
-    console.error(e);
+    console.error('[TRESDB] Error renderizando árbol:', e);
   } finally {
-    badge.style.display = 'none';
+    setTimeout(() => { badge.style.display = 'none'; }, 500);
   }
 }
 
@@ -128,7 +131,14 @@ async function ejecutar() {
 
   const badge = document.getElementById('op-badge');
   const op    = cmd.split(' ')[0].toUpperCase();
-  badge.textContent = op + 'ING...';
+  const badgeTextos = {
+  INSERT: '🌱 INSERTANDO...',
+  SELECT: '🔍 BUSCANDO...',
+  DELETE: '🍂 ELIMINANDO...',
+  RANGE:  '↔ RANGO...',
+  INDEX:  '📌 INDEXANDO...',
+  };
+  badge.textContent = badgeTextos[op] || '⚙️ PROCESANDO...';
   badge.style.display = 'block';
 
   try {
@@ -143,7 +153,7 @@ async function ejecutar() {
     mostrarResultado(data, cmd);
     agregarLog(cmd, data);
     actualizarStats();
-    setTimeout(mostrarArbolActual, 200);
+    setTimeout(() => mostrarArbolActual(true), 200)
   } catch(e) {
     mostrarResultado({ error: 'Error de conexión con el servidor' }, cmd);
   } finally {
@@ -170,7 +180,7 @@ function mostrarResultado(data, cmd) {
   }
 
   if (data.tipo === 'help') {
-    div.innerHTML = `<span class="msg-info">${escapeHtml(data.mensaje)}</span>`;
+    div.innerHTML = renderHelp(data.mensaje);
     return;
   }
 
@@ -193,12 +203,48 @@ function mostrarResultado(data, cmd) {
   div.innerHTML = html;
 }
 
+function renderHelp(texto) {
+  const lineas = texto.split('\n');
+  let html = '<div class="help-panel">';
+
+  lineas.forEach(linea => {
+    const t = linea.trim();
+    if (!t) {
+      html += '<div class="help-space"></div>';
+    } else if (t.startsWith('🌿') || t.startsWith('🌳')) {
+      html += `<div class="help-title">${escapeHtml(t)}</div>`;
+    } else if (t.startsWith('🌱') || t.startsWith('🔍') ||
+               t.startsWith('🍂') || t.startsWith('↔')  ||
+               t.startsWith('📌') || t.startsWith('AVL') ||
+               t.startsWith('R-N') || t.startsWith('B+') ||
+               t.startsWith('B ')) {
+      const [cmd, ...resto] = t.split('→');
+      html += `<div class="help-row">
+        <span class="help-cmd">${escapeHtml(cmd.trim())}</span>
+        ${resto.length ? `<span class="help-desc">→ ${escapeHtml(resto.join('→').trim())}</span>` : ''}
+      </div>`;
+    } else if (t.includes('INSERT') || t.includes('SELECT') ||
+               t.includes('RANGE')  || t.includes('DELETE') ||
+               t.includes('INDEX')  || t.includes('SHOW')   ||
+               t.includes('USE')    || t.includes('INFO')   ||
+               t.includes('HELP')) {
+      html += `<div class="help-example"><span class="help-prompt">~</span> ${escapeHtml(t)}</div>`;
+    } else {
+      html += `<div class="help-line">${escapeHtml(t)}</div>`;
+    }
+  });
+
+  html += '</div>';
+  return html;
+}
+
 /* ── LOG ───────────────────────────────────────────── */
 function agregarLog(cmd, data) {
   const op     = cmd.split(' ')[0].toLowerCase();
   const pillar = data.error ? 'error' : op;
   const n      = data.datos ? data.datos.length : 0;
   const hora   = new Date().toLocaleTimeString('es-CO', { hour12: false });
+  const arbol  = data.arbol ? `<span class="log-arbol">${data.arbol}</span>` : '';
   const result = data.error
     ? data.error.substring(0, 40)
     : data.mensaje
@@ -213,13 +259,11 @@ function agregarLog(cmd, data) {
       <span class="log-cmd">${escapeHtml(cmd)}</span>
       <span class="log-time">${hora}</span>
     </div>
-    <div class="log-result">${escapeHtml(result)}</div>
+    <div class="log-result">${escapeHtml(result)} ${arbol}</div>
   `;
 
   const container = document.getElementById('log-entries');
   container.insertBefore(entry, container.firstChild);
-
-  // máximo 50 entradas
   while (container.children.length > 50) {
     container.removeChild(container.lastChild);
   }
@@ -261,4 +305,258 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('cmd-input')
     .addEventListener('keydown', e => { if (e.key === 'Enter') ejecutar(); });
+});
+
+/* ── SVG RENDERER ──────────────────────────────────── */
+
+const SVG_CONFIG = {
+  nodeR:    20,      // radio del nodo
+  levelH:   70,      // altura entre niveles
+  minSep:   52,      // separación mínima entre nodos
+  padX:     40,
+  padY:     50,
+};
+
+// ── Calcular posiciones x,y de cada nodo ─────────────
+
+function calcularPosiciones(nodo, profundidad = 0, contador = { val: 0 }) {
+  if (!nodo) return null;
+
+  const izq = calcularPosiciones(nodo.izquierda || null, profundidad + 1, contador);
+  const x   = contador.val * SVG_CONFIG.minSep;
+  contador.val++;
+  const der = calcularPosiciones(nodo.derecha || null, profundidad + 1, contador);
+
+  return { ...nodo, x, y: profundidad * SVG_CONFIG.levelH, izquierda: izq, derecha: der };
+}
+
+function calcularPosicionesB(nodo, profundidad = 0, contador = { val: 0 }) {
+  if (!nodo) return null;
+  const hijos = (nodo.hijos || []).map(h => calcularPosicionesB(h, profundidad + 1, contador));
+  const x = contador.val * SVG_CONFIG.minSep * 1.8;
+  contador.val++;
+  return { ...nodo, x, y: profundidad * SVG_CONFIG.levelH, hijos };
+}
+
+function bbox(nodo, tipo) {
+  // encontrar ancho y alto total del árbol
+  let minX = Infinity, maxX = -Infinity, maxY = 0;
+  function walk(n) {
+    if (!n) return;
+    if (n.x < minX) minX = n.x;
+    if (n.x > maxX) maxX = n.x;
+    if (n.y > maxY) maxY = n.y;
+    if (tipo === 'b' || tipo === 'bmas') {
+      (n.hijos || []).forEach(walk);
+    } else {
+      walk(n.izquierda);
+      walk(n.derecha);
+    }
+  }
+  walk(nodo);
+  return { minX, maxX, maxY };
+}
+
+// ── Renderizar SVG ────────────────────────────────────
+
+function renderizarSVG(arbol, tab) {
+  if (!arbol) return null;
+
+  const cfg   = SVG_CONFIG;
+  const esB   = tab === 'b' || tab === 'bmas';
+  const nodos = esB
+    ? calcularPosicionesB(arbol)
+    : calcularPosiciones(arbol);
+
+  const { minX, maxX, maxY } = bbox(nodos, tab);
+  const offsetX = cfg.padX - minX;
+  const W = maxX - minX + cfg.padX * 2 + cfg.nodeR * 4;
+  const H = maxY + cfg.padY * 2 + cfg.nodeR * 2;
+
+  let edges = '';
+  let nodes = '';
+
+  function colorNodo(n) {
+    const isDark = !document.documentElement.classList.contains('light');
+
+    if (tab === 'avl') return {
+      fill:   isDark ? '#1e3a28' : '#e8f5ee',
+      stroke: 'var(--avl)',
+      text:   'var(--avl)'
+    };
+    if (tab === 'rn') return n.color === 'R'
+      ? { fill: isDark ? '#3a0a0a' : '#fde8e8', stroke: 'var(--rn-red)', text: 'var(--rn-red)' }
+      : { fill: isDark ? '#1a1a2e' : '#e8e8f0', stroke: 'var(--rn-black)', text: 'var(--rn-black)' };
+    if (tab === 'b') return {
+      fill:   isDark ? '#2a1e0a' : '#fdf3e0',
+      stroke: 'var(--b-tree)',
+      text:   'var(--b-tree)'
+    };
+    if (tab === 'bmas') return n.hoja
+      ? { fill: isDark ? '#0a1e2a' : '#e0f0f8', stroke: 'var(--bplus)', text: 'var(--bplus)' }
+      : { fill: isDark ? '#1a2a1e' : '#e8f5ee', stroke: 'var(--avl)',   text: 'var(--avl)' };
+    return { fill: isDark ? '#1e3a28' : '#e8f5ee', stroke: 'var(--accent)', text: 'var(--accent)' };
+  }
+
+  function dibujarArista(x1, y1, x2, y2, color) {
+    edges += `<line 
+      x1="${x1 + offsetX}" y1="${y1 + cfg.padY}" 
+      x2="${x2 + offsetX}" y2="${y2 + cfg.padY}"
+      stroke="${color}" stroke-width="1.5" opacity=".6"
+      marker-end="url(#arrow-${tab})"/>`;
+  }
+
+  function dibujarNodoBinario(n) {
+    if (!n) return;
+    const cx = n.x + offsetX;
+    const cy = n.y + cfg.padY;
+    const c  = colorNodo(n);
+
+    if (n.izquierda) {
+      dibujarArista(n.x, n.y + cfg.nodeR, n.izquierda.x, n.izquierda.y - cfg.nodeR, c.stroke);
+      dibujarNodoBinario(n.izquierda);
+    }
+    if (n.derecha) {
+      dibujarArista(n.x, n.y + cfg.nodeR, n.derecha.x, n.derecha.y - cfg.nodeR, c.stroke);
+      dibujarNodoBinario(n.derecha);
+    }
+
+    // etiqueta superior (fb o color RN)
+    const etiqueta = tab === 'avl'
+      ? String(n.fb)
+      : tab === 'rn' ? n.color : '';
+
+    nodes += `
+      <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">
+        ${etiqueta ? `<text x="${cx}" y="${cy - cfg.nodeR - 5}"
+          text-anchor="middle" font-size="10" fill="${c.stroke}"
+          font-family="JetBrains Mono">${etiqueta}</text>` : ''}
+        <circle cx="${cx}" cy="${cy}" r="${cfg.nodeR}"
+          fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>
+        <text x="${cx}" y="${cy + 4}" text-anchor="middle"
+          dominant-baseline="middle"
+          font-size="11" fill="${c.text}" font-family="JetBrains Mono"
+          font-weight="600">${escapeHtml(String(n.clave))}</text>
+      </g>`;
+  }
+
+  function dibujarNodoB(n) {
+    if (!n) return;
+    const c      = colorNodo(n);
+    const nClaves = n.claves.length;
+    const boxW   = Math.max(nClaves * 32, 48);
+    const boxH   = 32;
+    const cx     = n.x + offsetX;
+    const cy     = n.y + cfg.padY;
+
+    // aristas a hijos
+    (n.hijos || []).forEach(h => {
+      if (h) {
+        const boxH = 32;
+        dibujarArista(n.x, n.y + boxH / 2, h.x, h.y - boxH / 2, c.stroke);
+        dibujarNodoB(h);
+      }
+    });
+
+    // rectángulo del nodo
+    nodes += `
+      <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">
+        <rect x="${cx - boxW/2}" y="${cy - boxH/2}" 
+          width="${boxW}" height="${boxH}" rx="4"
+          fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>`;
+
+    // divisores y claves
+    n.claves.forEach((clave, i) => {
+      const kx = cx - boxW/2 + (i + 0.5) * (boxW / nClaves);
+      nodes += `<text x="${kx}" y="${cy + 5}" text-anchor="middle"
+        font-size="11" fill="${c.text}" font-family="JetBrains Mono"
+        font-weight="600">${escapeHtml(String(clave))}</text>`;
+      if (i < nClaves - 1) {
+        const divX = cx - boxW/2 + (i + 1) * (boxW / nClaves);
+        nodes += `<line x1="${divX}" y1="${cy - boxH/2 + 4}" 
+          x2="${divX}" y2="${cy + boxH/2 - 4}"
+          stroke="${c.stroke}" stroke-width="1" opacity=".4"/>`;
+      }
+    });
+
+    // etiqueta tipo hoja/interno
+    if (tab === 'bmas') {
+      const label  = n.hoja ? 'HOJA' : 'INT';
+      const labelC = n.hoja ? 'var(--bplus)' : 'var(--avl)';
+      nodes += `<text x="${cx}" y="${cy - boxH / 2 - 5}"
+        text-anchor="middle" font-size="8" fill="${labelC}"
+        font-family="JetBrains Mono" opacity=".8">${label}</text>`;
+    }
+
+    nodes += `</g>`;
+  }
+
+  // construir SVG completo
+  const arrowColor = tab === 'rn' ? 'var(--rn-red)'
+    : tab === 'b' ? 'var(--b-tree)'
+    : tab === 'bmas' ? 'var(--bplus)'
+    : 'var(--avl)';
+
+  if (esB) dibujarNodoB(nodos);
+  else     dibujarNodoBinario(nodos);
+
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}"
+    xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arrow-${tab}" viewBox="0 0 10 10" refX="8" refY="5"
+        markerWidth="5" markerHeight="5" orient="auto">
+        <path d="M1,1 L8,5 L1,9" fill="none" 
+          stroke="${arrowColor}" stroke-width="1.5" 
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </marker>
+    </defs>
+    ${edges}
+    ${nodes}
+  </svg>`;
+}
+
+/* ── RESIZE HANDLE ─────────────────────────────────── */
+function initResize() {
+  const handle   = document.getElementById('resize-handle');
+  const logPanel = document.getElementById('log-panel');
+  let dragging   = false;
+  let startX, startW;
+
+  handle.addEventListener('mousedown', e => {
+    dragging = true;
+    startX   = e.clientX;
+    startW   = logPanel.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const delta = startX - e.clientX;  // arrastrar izquierda = panel más ancho
+    const newW  = Math.min(500, Math.max(150, startW + delta));
+    logPanel.style.width = newW + 'px';
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) return;
+    dragging = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+}
+
+// llamar en DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  actualizarStats();
+  mostrarArbolActual();
+  initResize();  // ← agregar esta línea
+  document.getElementById('cmd-input')
+    .addEventListener('keydown', e => { if (e.key === 'Enter') ejecutar(); });
+});
+
+document.addEventListener('click', e => {
+  console.log('click en:', e.target.id || e.target.tagName);
 });

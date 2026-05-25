@@ -117,7 +117,7 @@ class ArbolB:
 
                 else:
                     # caso 2c: ambos tienen mínimo → merge y bajar
-                    self.merge(nodo, i)
+                    self._merge(nodo, i)
                     self._eliminar_rec(nodo.hijos[i], clave)
 
         else:
@@ -178,7 +178,7 @@ class ArbolB:
                     raise ValueError(
                         f"hijo der tiene {len(padre.hijos[i].claves)} claves antes de merge"
                     )
-                self.merge(padre, i - 1)
+                self._merge(padre, i - 1)
     
     def _robar_izquierda(self, padre, i):
         hijo = padre.hijos[i]
