@@ -146,15 +146,17 @@ class StorageManager:
         
         if not registros_a_actualizar:
             return 0
+
+        actualizaciones = {k: v for k, v in actualizaciones.items() if k != "id"}
+
+        for registro in registros_a_actualizar:
+            registro_actualizado = {**registro, **actualizaciones}
+            self._validar_registro(registro_actualizado)
         
         for registro in registros_a_actualizar:
             id_reg = registro["id"]
             
             for campo_upd, valor_upd in actualizaciones.items():
-                # No se puede cambiar la clave primaria
-                if campo_upd == "id":
-                    continue
-                
                 valor_viejo = registro.get(campo_upd)
                 
                 if campo_upd in self.indices:

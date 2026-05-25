@@ -24,6 +24,12 @@ def test_esquema_valida_tipos():
     # Insert con tipo incorrecto — precio como text
     r = qe.ejecutar("INSERT nombre:Mouse precio:barato")
     assert "error" in r, f"Debió rechazar tipo incorrecto: {r}"
+
+    # Update con tipo incorrecto — precio como text
+    r = qe.ejecutar("UPDATE nombre = Laptop SET precio:barato")
+    assert "error" in r, f"Debió rechazar UPDATE con tipo incorrecto: {r}"
+    r = qe.ejecutar("SELECT nombre = Laptop")
+    assert r["datos"][0]["precio"] == 1200.5, f"UPDATE inválido no debe modificar datos: {r}"
     print("✅ Validación de tipos OK")
 
 def test_use_table_aislamiento():
