@@ -76,13 +76,33 @@ assert r["datos"][0]["registros"] == 4
 assert "ciudad" in r["datos"][0]["indices"]
 print("  ✅ Test 10 — INFO")
 
-# ── Test 11: HELP ─────────────────────────────────────
+# ── Test 11: SAVE/LOAD persistencia ───────────────────
+import tempfile
+
+with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as tmp:
+    ruta = tmp.name
+
+r = qe.ejecutar(f"SAVE {ruta}")
+assert r["tipo"] == "save"
+assert "Estado guardado" in r["mensaje"]
+
+qe2 = QueryEngine()
+r2 = qe2.ejecutar(f"LOAD {ruta}")
+assert r2["tipo"] == "load"
+assert "Estado cargado" in r2["mensaje"]
+assert qe2.ejecutar("INFO")["datos"][0]["registros"] == 4
+
+import os
+os.remove(ruta)
+print("  ✅ Test 11 — SAVE/LOAD persistencia")
+
+# ── Test 12: HELP ─────────────────────────────────────
 r = qe.ejecutar("HELP")
 assert r["tipo"] == "help"
 assert len(r["mensaje"]) > 0
 r = qe.ejecutar("HELP INSERT")
 assert "INSERT" in r["mensaje"]
-print("  ✅ Test 11 — HELP")
+print("  ✅ Test 12 — HELP")
 
 # ── Test 12: comandos inválidos ───────────────────────
 r = qe.ejecutar("INSERTAR algo")

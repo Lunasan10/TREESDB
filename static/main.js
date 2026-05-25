@@ -82,7 +82,6 @@ async function mostrarArbolActual(animar = false) {
     empty = document.createElement('div');
     empty.id = 'tree-empty';
     empty.className = 'tree-empty';
-    empty.innerHTML = '<span>🌿</span><span>Árbol vacío</span>';
     document.getElementById('visualizador').appendChild(empty);
   }
 
@@ -141,21 +140,26 @@ async function ejecutar() {
   const input = document.getElementById('cmd-input');
   const cmd   = input.value.trim();
   if (!cmd) return;
+  ejecutarComando(cmd, input);
+}
 
+async function ejecutarComando(cmd, inputElement = null, badgeText = null) {
   const badge = document.getElementById('op-badge');
   const op    = cmd.split(' ')[0].toUpperCase();
   const badgeTextos = {
-  INSERT: '🌱 INSERTANDO...',
-  SELECT: '🔍 BUSCANDO...',
-  DELETE: '🍂 ELIMINANDO...',
-  RANGE:  '↔ RANGO...',
-  INDEX:  '📌 INDEXANDO...',
-  CREATE: '🗂️ CREANDO TABLA...',  
-  DROP:   '🗑️ VACIANDO TABLA...', 
-  USE:    '🔀 CAMBIANDO TABLA...', 
-  SHOW:   '📋 LISTANDO...',        
+    INSERT: '🌱 INSERTANDO...',
+    SELECT: '🔍 BUSCANDO...',
+    DELETE: '🍂 ELIMINANDO...',
+    RANGE:  '↔ RANGO...',
+    INDEX:  '📌 INDEXANDO...',
+    CREATE: '🗂️ CREANDO TABLA...',
+    DROP:   '🗑️ VACIANDO TABLA...',
+    USE:    '🔀 CAMBIANDO TABLA...',
+    SHOW:   '📋 LISTANDO...',
+    SAVE:   '💾 GUARDANDO...',
+    LOAD:   '📂 CARGANDO...',
   };
-  badge.textContent = badgeTextos[op] || '⚙️ PROCESANDO...';
+  badge.textContent = badgeText || badgeTextos[op] || '⚙️ PROCESANDO...';
   badge.style.display = 'block';
 
   try {
@@ -167,16 +171,30 @@ async function ejecutar() {
 
     const data = await res.json();
 
-    input.value = '';
+    if (inputElement) {
+      inputElement.value = '';
+    }
     mostrarResultado(data, cmd);
     agregarLog(cmd, data);
     actualizarStats();
-    setTimeout(() => mostrarArbolActual(true), 200)
+    setTimeout(() => mostrarArbolActual(true), 200);
   } catch(e) {
     mostrarResultado({ error: 'Error de conexión con el servidor' }, cmd);
   } finally {
     setTimeout(() => { badge.style.display = 'none'; }, 600);
   }
+}
+
+function guardarEstado() {
+  const nombre = prompt('Nombre del archivo JSON donde guardar el estado', 'estado.json');
+  if (!nombre) return;
+  ejecutarComando(`SAVE ${nombre}`);
+}
+
+function cargarEstado() {
+  const nombre = prompt('Nombre del archivo JSON desde donde cargar el estado', 'estado.json');
+  if (!nombre) return;
+  ejecutarComando(`LOAD ${nombre}`);
 }
 
 /* ── RESULTADO ─────────────────────────────────────── */
@@ -263,22 +281,14 @@ function renderHelp(texto) {
       html += '<div class="help-space"></div>';
     } else if (t.startsWith('🌿') || t.startsWith('🌳')) {
       html += `<div class="help-title">${escapeHtml(t)}</div>`;
-    } else if (t.startsWith('🌱') || t.startsWith('🔍') ||
-               t.startsWith('🍂') || t.startsWith('↔')  ||
-               t.startsWith('📌') || t.startsWith('AVL') ||
-               t.startsWith('R-N') || t.startsWith('B+') ||
-               t.startsWith('B ')) {
+    } else if (/^(?:HELP|INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|TREES|CREATE TABLE|DROP TABLE|USE TABLE|SHOW TABLES|INFO)(?:\b|\s|\[)/.test(t)) {
       const [cmd, ...resto] = t.split('→');
       html += `<div class="help-row">
         <span class="help-cmd">${escapeHtml(cmd.trim())}</span>
         ${resto.length ? `<span class="help-desc">→ ${escapeHtml(resto.join('→').trim())}</span>` : ''}
       </div>`;
-    } else if (t.includes('INSERT') || t.includes('SELECT') ||
-               t.includes('RANGE')  || t.includes('DELETE') ||
-               t.includes('INDEX')  || t.includes('SHOW')   ||
-               t.includes('USE')    || t.includes('INFO')   ||
-               t.includes('HELP')) {
-      html += `<div class="help-example"><span class="help-prompt">~</span> ${escapeHtml(t)}</div>`;
+    } else if (t.startsWith('~')) {
+      html += `<div class="help-example"><span class="help-prompt">~</span> ${escapeHtml(t.slice(1).trim())}</div>`;
     } else {
       html += `<div class="help-line">${escapeHtml(t)}</div>`;
     }

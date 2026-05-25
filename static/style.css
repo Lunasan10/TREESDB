@@ -281,6 +281,8 @@ html,body{
 .pill-delete{background:rgba(248,81,73,.15);color:var(--error)}
 .pill-range {background:rgba(227,168,87,.15);color:var(--warning)}
 .pill-index {background:rgba(163,201,110,.15);color:var(--lime)}
+.pill-save  {background:rgba(76,175,125,.15);color:var(--accent)}
+.pill-load  {background:rgba(91,163,212,.15);color:var(--bplus)}
 .pill-help  {background:rgba(76,175,125,.15);color:var(--accent)}
 .pill-info  {background:rgba(107,143,113,.15);color:var(--text-muted)}
 .pill-error {background:rgba(248,81,73,.15);color:var(--error)}
@@ -319,6 +321,14 @@ html,body{
 }
 #btn-run:hover{opacity:.85}
 #btn-run:active{transform:scale(.97)}
+
+button.control-btn{
+  padding:.32rem .85rem;background:var(--surface-strong);color:var(--text-primary);
+  border:1px solid var(--border);border-radius:4px;font-family:inherit;font-size:.68rem;
+  font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .1s;white-space:nowrap;
+}
+button.control-btn:hover{opacity:.85}
+button.control-btn:active{transform:scale(.97)}
 
 .cmd-chips{
   display:flex;gap:.3rem;padding:0 1.2rem;

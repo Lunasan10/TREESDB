@@ -1,3 +1,4 @@
+import json
 from storage_manager import StorageManager
 
 class QueryEngine:
@@ -35,6 +36,10 @@ class QueryEngine:
                 return self._show(partes[1:])
             elif op == "USE":
                 return self._use(partes[1:])
+            elif op == "SAVE":
+                return self._save(partes[1:])
+            elif op == "LOAD":
+                return self._load(partes[1:])
             elif op == "CREATE" and len(partes) > 1 and partes[1].upper() == "TABLE":
                 return self._create_table(partes[2:])
             elif op == "DROP" and len(partes) > 1 and partes[1].upper() == "TABLE":
@@ -288,34 +293,103 @@ class QueryEngine:
             for nombre, sm in self.tablas.items()
         ]
         return {"tipo": "show_tables", "datos": filas, "arbol": "-"}
-    
+
+    def _save(self, partes):
+        if not partes:
+            return {"error": "SAVE requiere un nombre de archivo. Ej: SAVE estado.json"}
+        ruta = " ".join(partes)
+        estado = {
+            "tablas": {nombre: sm.to_dict() for nombre, sm in self.tablas.items()},
+            "tabla_activa": self.tabla_activa,
+        }
+        tmp = ruta + ".tmp"
+        try:
+            with open(tmp, "w", encoding="utf-8") as f:
+                json.dump(estado, f, ensure_ascii=False, indent=2)
+            import os
+            os.replace(tmp, ruta)
+            return {"tipo": "save", "datos": [], "mensaje": f"Estado guardado en '{ruta}'", "arbol": "-"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _load(self, partes):
+        if not partes:
+            return {"error": "LOAD requiere un nombre de archivo. Ej: LOAD estado.json"}
+        ruta = " ".join(partes)
+        try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+        except FileNotFoundError:
+            return {"error": f"Archivo no encontrado: '{ruta}'"}
+        except Exception as e:
+            return {"error": str(e)}
+
+        tablas = datos.get("tablas")
+        if not isinstance(tablas, dict):
+            return {"error": "Archivo inválido: falta la sección 'tablas'"}
+
+        nuevas_tablas = {}
+        for nombre, estado_tabla in tablas.items():
+            sm = StorageManager()
+            sm.load_dict(estado_tabla)
+            nuevas_tablas[nombre] = sm
+
+        self.tablas = nuevas_tablas
+        activa = datos.get("tabla_activa", "default")
+        self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas), "default")
+        return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{ruta}'", "arbol": "-"}
+
     def _help(self, partes):
         temas = {
             "": """
 🌿 TRESDB — Comandos disponibles:
-        INSERT campo:valor campo:valor ...
-        SELECT campo = valor
-        RANGE  campo inicio fin
-        DELETE campo = valor
-        UPDATE campo = valor SET campo1:valor1 campo2:valor2
-        INDEX  campo
-        SHOW TREE [avl|rn|b|bmas]
-        USE TREE  [avl|rn|b|bmas|auto]
-        INFO
-        HELP [INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|TREES]
+        1. Gestión de datos:
+            INSERT campo:valor campo:valor ...
+            SELECT campo = valor
+            RANGE  campo inicio fin
+            DELETE campo = valor
+            UPDATE campo = valor SET campo1:valor1 campo2:valor2
+        2. Utilidades del Sitema (herramientas extra):
+            INDEX  campo
+            SHOW TREE [avl|rn|b|bmas]
+            USE TREE  [avl|rn|b|bmas|auto]
+            SAVE archivo.json
+            LOAD archivo.json
+            INFO
+            HELP [INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|TREES|CREATE TABLE|DROP TABLE|USE TABLE|SHOW TABLES|SAVE|LOAD]
+        3. Gestión de tablas:
+            CREATE TABLE nombre [campo:tipo ...]
+            DROP TABLE nombre
+            USE TABLE nombre
+            SHOW TABLES
 """,
-            "INSERT": "🌱 INSERT nombre:Ana edad:25\n  Guarda un registro con los campos que definas.",
-            "SELECT": "🔍 SELECT nombre = Ana\n  Busca registros donde el campo tenga ese valor exacto.",
-            "RANGE":  "↔ RANGE edad 20 30\n  Busca registros donde el campo esté entre dos valores.",
-            "DELETE": "🍂 DELETE nombre = Ana\n  Elimina todos los registros que coincidan.",
-            "INDEX":  "📌 INDEX ciudad\n  Crea un índice secundario para búsquedas más rápidas.",
-            "UPDATE": "🛠️ UPDATE nombre = Ana SET edad:26 ciudad:Medellín\n  Actualiza campos en los registros que coincidan.",
+            "INSERT": "🌱 INSERT campo:valor campo:valor ...\n  ¡Guarda un dato nuevo! Agrega un nuevo elemento a tu árbol (a la tabla activa)",
+            "SELECT": "🔍 SELECT campo = valor\n ¡Encuentra lo que buscas! Pídele al sistema que te muestre los registros que coincidan.",
+            "RANGE":  "↔ RANGE campo inicio fin\n  ¿Buscas en un rango en específico? Mira todo lo que esté entre esos valores, perfecto para edades, precios, fechas...",
+            "DELETE": "🍂 DELETE campo = valor\n  ¿Ya no necesitas un registro? Elimínalo rápidamente.",
+            "INDEX":  "📌 INDEX campo\n  ¿Tu búsqueda es frecuente? Crea un índice para que el sistema encuentre las cosas mucho más rápdio.",
+            "UPDATE": "🛠️ UPDATE campo = valor SET campo1:valor1 campo2:valor2\n  ¿Te equivocaste en un dato? Actualízalo rápidamente sin tener que borrarlo todo.",
             "TREES":  """🌳 Los 4 árboles de TRESDB:
-  AVL    → índice primario, búsqueda exacta O(log n)
-  R-N    → índices secundarios, inserciones masivas
-  B      → organización de bloques internos
-  B+     → almacén principal, soporta RANGE por hojas enlazadas""",
+  AVL    → El más equilibrado y rápido para búsquedas exactas. Ideal cuando quieres respuestas precisas y actualizaciones fluidas.
+  R-N    → Rojo-Negro, excelente para inserciones frecuentes y grandes volúmenes de datos. Mantiene el balance con menos rotaciones.
+  B      → Organiza datos en bloques grandes. Perfecto cuando trabajas con muchas páginas y quieres eficiencia en almacenamiento.
+  B+     → El mejor para rangos y recorridos ordenados. Sus hojas enlazadas permiten leer valores consecutivos de forma muy eficiente.""",
+            "HELP":         "❓ HELP [tema]\n  Muestra el manual integrado. Usa HELP seguido de un tema como INSERT, SELECT, CREATE TABLE, INFO o el propio HELP para ver más detalles. Para ver la diferencia entre guardado y carga, usa HELP SAVE o HELP LOAD.",
+            "CREATE TABLE": "📂 CREATE TABLE nombre [campo:tipo ...]\n  ¡Crea un nuevo espacio, una nueva tabla! Dale un nombre y decide qué timpo de información guardará.",
+            "DROP TABLE":   "🗑️ DROP TABLE nombre\n  ¡Limpia el espacio! Borra una tabla que ya no necesites.\n ¡Úsalo con cuidado, esto borra todo lo que haya dentro!",
+            "USE TABLE":    "📁 USE TABLE nombre\n ¡Dile a TreeDB en qué espacio vas a trabajar hoy! Es como abrir una carpeta especial.",
+            "SHOW TABLES":   "📋 SHOW TABLES\n  ¿Olivdaste que tablas tienes disponibles? Este comando te muestra todas las que has creado hasta ahora.",
+            "SAVE":         "💾 SAVE archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON. \n Alias: GUARDAR.",
+            "LOAD":         "📂 LOAD archivo.json\n  Restaura el estado guardado desde un archivo JSON. \n Alias: CARGAR.",
+            "GUARDAR":      "💾 GUARDAR archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON. \nEquivale a SAVE.",
+            "CARGAR":       "📂 CARGAR archivo.json\n  Restaura el estado guardado desde un archivo JSON. \n Equivale a LOAD.",
+            "INFO":         "ℹ️ INFO\n  Muestra el estado actual del sistema: registros, altura del árbol y los índices activos. Úsalo para revisar cómo va tu base de datos."
         }
-        clave = partes[0].upper() if partes else ""
+        if not partes:
+            clave = ""
+        else:
+            posible = " ".join([p.upper() for p in partes]).strip()
+            clave = posible if posible in temas else partes[0].upper()
+
         texto = temas.get(clave, f"No hay ayuda para '{clave}'. Escribe HELP para ver todo.")
         return {"tipo": "help", "datos": [], "mensaje": texto}

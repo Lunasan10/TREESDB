@@ -209,6 +209,51 @@ class StorageManager:
             "esquema"        : self.esquema,
         }
         
+    def to_dict(self):
+        return {
+            "esquema": self.esquema,
+            "siguiente_id": self._siguiente_id,
+            "registros": list(self.registros.values()),
+            "indices": list(self.indices.keys()),
+        }
+
+    def load_dict(self, data: dict):
+        if not isinstance(data, dict):
+            raise TypeError("El estado debe ser un diccionario válido")
+
+        self.reset()
+        self.esquema = data.get("esquema", {}) or {}
+
+        registros = data.get("registros", [])
+        if not isinstance(registros, list):
+            raise TypeError("'registros' debe ser una lista")
+
+        for registro in registros:
+            if not isinstance(registro, dict) or "id" not in registro:
+                raise ValueError("Cada registro debe ser un diccionario con campo 'id'")
+            id_reg = registro["id"]
+            self.registros[id_reg] = registro
+            self.bmas.insertar(id_reg)
+            self.avl.insertar(id_reg)
+            self.b.insertar(id_reg)
+
+        if self.registros:
+            self._siguiente_id = max(self.registros.keys()) + 1
+        else:
+            self._siguiente_id = 1
+
+        siguiente_id = data.get("siguiente_id")
+        if isinstance(siguiente_id, int) and siguiente_id > self._siguiente_id:
+            self._siguiente_id = siguiente_id
+
+        for campo in data.get("indices", []):
+            try:
+                self.index(campo)
+            except Exception:
+                pass
+
+        return len(self.registros)
+
     def reset(self):
         self.bmas          = ArbolBMas(t=2)
         self.avl           = AVL()
