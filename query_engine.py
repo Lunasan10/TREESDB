@@ -253,12 +253,11 @@ class QueryEngine:
             return {"error": f"La tabla '{nombre}' no existe"}
         if nombre == "default":
             return {"error": "No se puede eliminar la tabla 'default'"}
-        self.tablas[nombre].reset()  # vacía datos, árboles se reconstruyen
-        esquema_guardado = self.tablas[nombre].esquema  # reset() limpia esquema también
+        self.tablas[nombre].reset()  # vacía datos, reconstruye árboles y conserva esquema
         return {
             "tipo":    "drop_table",
             "datos":   [],
-            "mensaje": f"Tabla '{nombre}' vaciada (esquema eliminado)",
+            "mensaje": f"Tabla '{nombre}' vaciada (esquema conservado)",
             "tabla":   self.tabla_activa,
             "arbol": "-"
         }
