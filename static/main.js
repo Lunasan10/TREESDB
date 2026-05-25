@@ -10,6 +10,7 @@ const TAB_COLORS = {
 const CHIP_EXAMPLES = {
   INSERT: 'INSERT nombre:Ana edad:25 ciudad:Bogotá',
   SELECT: 'SELECT nombre = Ana',
+  UPDATE: 'UPDATE nombre = Ana SET edad:26 ciudad:Medellín',
   RANGE:  'RANGE edad 20 30',
   DELETE: 'DELETE nombre = Ana',
   INDEX:  'INDEX ciudad',
@@ -51,6 +52,7 @@ function toggleTheme() {
   const isLight = root.classList.toggle('light');
   document.getElementById('theme-icon').textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  mostrarArbolActual();
 }
 
 function toggleAbout() {
@@ -246,9 +248,9 @@ function agregarLog(cmd, data) {
   const hora   = new Date().toLocaleTimeString('es-CO', { hour12: false });
   const arbol  = data.arbol ? `<span class="log-arbol">${data.arbol}</span>` : '';
   const result = data.error
-    ? data.error.substring(0, 40)
+    ? data.error
     : data.mensaje
-      ? data.mensaje.substring(0, 40)
+      ? data.mensaje
       : `${n} resultado(s)`;
 
   const entry = document.createElement('div');
@@ -288,6 +290,8 @@ function usarChip(cmd) {
   input.focus();
 }
 
+
+
 /* ── UTILS ─────────────────────────────────────────── */
 function escapeHtml(str) {
   return String(str)
@@ -309,13 +313,14 @@ const SVG_CONFIG = {
 
 // ── Calcular posiciones x,y de cada nodo ─────────────
 
-function calcularPosiciones(nodo, profundidad = 0, contador = { val: 0 }) {
+function calcularPosiciones(nodo, profundidad = 0, contador = { val: 0 }, tab = 'avl') {
   if (!nodo) return null;
 
-  const izq = calcularPosiciones(nodo.izquierda || null, profundidad + 1, contador);
-  const x   = contador.val * SVG_CONFIG.minSep;
+  const izq = calcularPosiciones(nodo.izquierda || null, profundidad + 1, contador, tab);
+  const sep = SVG_CONFIG.minSep * (tab === 'rn' ? 1.8 : 1);
+  const x   = contador.val * sep;
   contador.val++;
-  const der = calcularPosiciones(nodo.derecha || null, profundidad + 1, contador);
+  const der = calcularPosiciones(nodo.derecha || null, profundidad + 1, contador, tab);
 
   return { ...nodo, x, y: profundidad * SVG_CONFIG.levelH, izquierda: izq, derecha: der };
 }
@@ -356,7 +361,7 @@ function renderizarSVG(arbol, tab) {
   const esB   = tab === 'b' || tab === 'bmas';
   const nodos = esB
     ? calcularPosicionesB(arbol)
-    : calcularPosiciones(arbol);
+    : calcularPosiciones(arbol, 0, { val: 0 }, tab);
 
   const { minX, maxX, maxY } = bbox(nodos, tab);
   const offsetX = cfg.padX - minX;
@@ -401,20 +406,47 @@ function renderizarSVG(arbol, tab) {
     const cx = n.x + offsetX;
     const cy = n.y + cfg.padY;
     const c  = colorNodo(n);
+    const height = tab === 'rn' ? 44 : cfg.nodeR * 2;
 
     if (n.izquierda) {
-      dibujarArista(n.x, n.y + cfg.nodeR, n.izquierda.x, n.izquierda.y - cfg.nodeR, c.stroke);
+      const yOrigen = n.y + height / 2;
+      const yDestino = n.izquierda.y - (tab === 'rn' ? height / 2 : cfg.nodeR);
+      dibujarArista(n.x, yOrigen, n.izquierda.x, yDestino, c.stroke);
       dibujarNodoBinario(n.izquierda);
     }
     if (n.derecha) {
-      dibujarArista(n.x, n.y + cfg.nodeR, n.derecha.x, n.derecha.y - cfg.nodeR, c.stroke);
+      const yOrigen = n.y + height / 2;
+      const yDestino = n.derecha.y - (tab === 'rn' ? height / 2 : cfg.nodeR);
+      dibujarArista(n.x, yOrigen, n.derecha.x, yDestino, c.stroke);
       dibujarNodoBinario(n.derecha);
     }
 
-    // etiqueta superior (fb o color RN)
-    const etiqueta = tab === 'avl'
-      ? String(n.fb)
-      : tab === 'rn' ? n.color : '';
+    if (tab === 'rn') {
+      const texto = String(n.clave);
+      const partes = texto.split(/:(.+)/);
+      const tipo = partes[0] || texto;
+      const valor = partes[1] !== undefined ? partes[1] : tipo;
+      const boxW = Math.max(cfg.nodeR * 3.5, Math.max(tipo.length * 8, valor.length * 9) + 18);
+      const boxH = height;
+      const x0 = cx - boxW / 2;
+      const y0 = cy - boxH / 2;
+
+      nodes += `
+        <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">
+          <rect x="${x0}" y="${y0}" width="${boxW}" height="${boxH}" rx="8"
+            fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>
+          <text x="${cx}" y="${cy - 6}" text-anchor="middle"
+            font-size="9" fill="${c.text}" font-family="JetBrains Mono"
+            font-weight="700">${escapeHtml(tipo)}</text>
+          <text x="${cx}" y="${cy + 12}" text-anchor="middle"
+            font-size="10" fill="${c.text}" font-family="JetBrains Mono"
+            font-weight="600">${escapeHtml(valor)}</text>
+        </g>`;
+      return;
+    }
+
+    // etiqueta superior (fb)
+    const etiqueta = tab === 'avl' ? String(n.fb) : '';
 
     nodes += `
       <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">

@@ -33,7 +33,7 @@
     </div>
     <div class="header-right">
         <select class="mode-selector" id="mode-select" onchange="cambiarModo(this.value)" title="Selecciona el tipo de árbol que deseas">
-                <option value="auto">🌿 ATOMÁTICO</option>
+                <option value="auto">🌿 AUTOMÁTICO</option>
                 <option value="avl">🟢 AVL</option>
                 <option value="rn">🔴 Rojo-Negro</option>
                 <option value="b">🟤 B</option>
@@ -75,7 +75,7 @@
     <div id="resize-handle"></div>  <!-- ← divisor draggable -->
 
     <aside id="log-panel">
-      <div class="log-header">🌿 Growth Log</div>
+      <div class="log-header">🌿 Historial de comandos</div>
       <div id="log-entries"></div>
     </aside>
   </div>
@@ -94,6 +94,7 @@
       <span style="color:var(--text-faint);font-size:.6rem;margin-right:.2rem">→</span>
       <span class="chip" onclick="usarChip('INSERT')">INSERT</span>
       <span class="chip" onclick="usarChip('SELECT')">SELECT</span>
+      <span class="chip" onclick="usarChip('UPDATE')">UPDATE</span>
       <span class="chip" onclick="usarChip('RANGE')">RANGE</span>
       <span class="chip" onclick="usarChip('DELETE')">DELETE</span>
       <span class="chip" onclick="usarChip('INDEX')">INDEX</span>

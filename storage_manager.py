@@ -18,7 +18,7 @@ class StorageManager:
         self.indices = {}
         self._siguiente_id = 1
     
-    # INSERT
+    # INSERT:
     def insert(self, datos: dict):
         id_nuevo = self._siguiente_id
         self._siguiente_id += 1
@@ -46,7 +46,7 @@ class StorageManager:
         
         return registro
     
-    # SELECT
+    # SELECT:
     def select(self, campo, valor):
         if campo == "id":
             # Búsqueda directa por AVL
@@ -62,7 +62,7 @@ class StorageManager:
         # Búsqueda secuencial por hojas del B+
         return [r for r in self.registros.values() if r.get(campo) == valor]
     
-    # RANGE
+    # RANGE:
     def range(self, campo, inicio, fin):
         if campo == "id":
             ids = self.bmas.rango(inicio, fin)
@@ -83,7 +83,7 @@ class StorageManager:
             key=lambda r: r.get(campo)
         )
     
-    # DELETE
+    # DELETE:
     def delete(self, campo, valor):
         registros_a_eliminar = self.select(campo, valor)
 
@@ -109,6 +109,7 @@ class StorageManager:
                     indice[valor_idx] = [i for i in indice[valor_idx] if i != id_reg]
                     if not indice[valor_idx]:
                         del indice[valor_idx]
+                        self.rn.eliminar(f"{campo_idx}:{valor_idx!r}")
 
             del self.registros[id_reg]
 
@@ -118,7 +119,7 @@ class StorageManager:
 
         return len(registros_a_eliminar)
     
-    # INDEX
+    # INDEX:
     def index(self, campo):
         if campo in self.indices:
             return f"Índice '{campo}' ya existente"
@@ -135,7 +136,40 @@ class StorageManager:
         self.indices[campo] = indice
         return f"Índice '{campo}' creado sobre {len(indice)} valores únicos"
     
-    # INFO
+    # UPDATE:
+    def update(self, campo, valor, actualizaciones: dict):
+        registros_a_actualizar = self.select(campo, valor)
+        
+        if not registros_a_actualizar:
+            return 0
+        
+        for registro in registros_a_actualizar:
+            id_reg = registro["id"]
+            
+            for campo_upd, valor_upd in actualizaciones.items():
+                # No se puede cambiar la clave primaria
+                if campo_upd == "id":
+                    continue
+                
+                valor_viejo = registro.get(campo_upd)
+                
+                if campo_upd in self.indices:
+                    indice = self.indices[campo_upd]
+                    if valor_viejo in indice:
+                        indice[valor_viejo] = [i for i in indice[valor_viejo] if i != id_reg]
+                        if not indice[valor_viejo]:
+                            del indice[valor_viejo]
+                            self.rn.eliminar(f"{campo_upd}:{valor_viejo!r}")
+                    if valor_upd not in indice:
+                        indice[valor_upd] = []
+                        self.rn.insertar(f"{campo_upd}:{valor_upd!r}")
+                    indice[valor_upd].append(id_reg)
+            
+                self.registros[id_reg][campo_upd] = valor_upd
+            
+        return len(registros_a_actualizar)
+    
+    # INFO:
     def info(self):
         return {
             "registros"      : len(self.registros),

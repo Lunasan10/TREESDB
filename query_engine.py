@@ -32,6 +32,8 @@ class QueryEngine:
                 return {"tipo": "info", "datos": [self.sm.info()]}
             elif op == "HELP":
                 return self._help(partes[1:])
+            elif op == "UPDATE":
+                return self._update(partes[1:])
             else:
                 return {"error": f"Comando desconocido: '{op}'"}
         except Exception as e:
@@ -125,6 +127,45 @@ class QueryEngine:
             "datos":   [],
             "mensaje": f"Árbol activo: {self.arbol_activo.upper()}"
         }
+        
+    def _update(self, partes):
+        if len(partes) < 5 or partes[1] != "=" or partes[3].upper() != "SET":
+            return {"error": "Formato: UPDATE campo = valor SET campo1:valor1 campo2:valor2"}
+        
+        campo = partes[0]
+        valor = partes[2]
+        try:
+            valor = int(valor)
+        except ValueError:
+            try:
+                valor = float(valor)
+            except ValueError:
+                pass
+            
+        actualizaciones = {}
+        for parte in partes[4:]:
+            if ":" not in parte:
+                return {"error": f"Formato inválido en SET: '{parte}'. Usa campo:valor"}
+            k, v = parte.split(":", 1)
+            try:
+                v = int(v)
+            except ValueError:
+                try:
+                    v = float(v)
+                except ValueError:
+                    pass
+            actualizaciones[k] = v
+            
+        if not actualizaciones:
+            return {"error": "SET requiere al menos un campo a actualzar"}
+        
+        n = self.sm.update(campo, valor, actualizaciones)
+        return{
+            "tipo":    "update",
+            "datos":   [],
+            "mensaje": f"{n} registro(s) actualizado(s)",
+            "arbol":   "AVL + Rojo-Negro"
+        }
     
     def _help(self, partes):
         temas = {
@@ -134,17 +175,19 @@ class QueryEngine:
         SELECT campo = valor
         RANGE  campo inicio fin
         DELETE campo = valor
+        UPDATE campo = valor SET campo1:valor1 campo2:valor2
         INDEX  campo
         SHOW TREE [avl|rn|b|bmas]
         USE TREE  [avl|rn|b|bmas|auto]
         INFO
-        HELP [INSERT|SELECT|RANGE|DELETE|INDEX|TREES]
+        HELP [INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|TREES]
 """,
             "INSERT": "🌱 INSERT nombre:Ana edad:25\n  Guarda un registro con los campos que definas.",
             "SELECT": "🔍 SELECT nombre = Ana\n  Busca registros donde el campo tenga ese valor exacto.",
             "RANGE":  "↔ RANGE edad 20 30\n  Busca registros donde el campo esté entre dos valores.",
             "DELETE": "🍂 DELETE nombre = Ana\n  Elimina todos los registros que coincidan.",
             "INDEX":  "📌 INDEX ciudad\n  Crea un índice secundario para búsquedas más rápidas.",
+            "UPDATE": "🛠️ UPDATE nombre = Ana SET edad:26 ciudad:Medellín\n  Actualiza campos en los registros que coincidan.",
             "TREES":  """🌳 Los 4 árboles de TRESDB:
   AVL    → índice primario, búsqueda exacta O(log n)
   R-N    → índices secundarios, inserciones masivas
