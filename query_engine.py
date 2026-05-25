@@ -32,20 +32,9 @@ class QueryEngine:
             elif op == "UPDATE":
                 return self._update(partes[1:])
             elif op == "SHOW":
-                if len(partes) > 1 and partes[1].upper() == "TREE":
-                    return self._show_tree(partes[2:])
-                elif len(partes) > 1 and partes[1].upper() == "TABLES":
-                    return self._show_tables()
-                else:
-                    return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLES"}
-
+                return self._show(partes[1:])
             elif op == "USE":
-                if len(partes) > 1 and partes[1].upper() == "TREE":
-                    return self._use_tree(partes[2:])
-                elif len(partes) > 1 and partes[1].upper() == "TABLE":
-                    return self._use_table(partes[2:])
-                else:
-                    return {"error": "Uso: USE TREE <árbol> | USE TABLE <nombre>"}
+                return self._use(partes[1:])
             elif op == "CREATE" and len(partes) > 1 and partes[1].upper() == "TABLE":
                 return self._create_table(partes[2:])
             elif op == "DROP" and len(partes) > 1 and partes[1].upper() == "TABLE":
@@ -129,6 +118,26 @@ class QueryEngine:
             return {"error": "INDEX require un campo. Ej: INDEX ciudad"}
         mensaje = self.sm.index(partes[0])
         return {"tipo": "index", "datos": [], "mensaje": mensaje, "arbol": "Rojo-Negro"}
+
+    def _show(self, partes):
+        if not partes:
+            return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLES"}
+        objetivo = partes[0].upper()
+        if objetivo == "TREE":
+            return self._show_tree(partes[1:])
+        if objetivo == "TABLES":
+            return self._show_tables()
+        return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLES"}
+
+    def _use(self, partes):
+        if not partes:
+            return {"error": "Uso: USE TREE <árbol> | USE TABLE <nombre>"}
+        objetivo = partes[0].upper()
+        if objetivo == "TREE":
+            return self._use_tree(partes[1:])
+        if objetivo == "TABLE":
+            return self._use_table(partes[1:])
+        return {"error": "Uso: USE TREE <árbol> | USE TABLE <nombre>"}
     
     def _show_tree(self, partes):
         arboles = {"avl", "rn", "b", "bmas", "b+"}
