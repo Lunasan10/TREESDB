@@ -177,7 +177,7 @@ class QueryEngine:
             actualizaciones[k] = v
             
         if not actualizaciones:
-            return {"error": "SET requiere al menos un campo a actualzar"}
+            return {"error": "SET requiere al menos un campo a actualizar"}
         
         n = self.sm.update(campo, valor, actualizaciones)
         return{
