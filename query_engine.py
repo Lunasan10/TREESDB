@@ -2,8 +2,9 @@ from storage_manager import StorageManager
 
 class QueryEngine:
     def __init__(self):
-        self.sm = StorageManager()
         self.arbol_activo = "auto"
+        self.tablas = {"default": StorageManager()}
+        self.tabla_activa = "default"
 
     def ejecutar(self, comando: str) -> dict:
         comando = comando.strip()
@@ -34,10 +35,33 @@ class QueryEngine:
                 return self._help(partes[1:])
             elif op == "UPDATE":
                 return self._update(partes[1:])
+            elif op == "SHOW":
+                if len(partes) > 1 and partes[1].upper() == "TREE":
+                    return self._show_tree(partes[2:])
+                elif len(partes) > 1 and partes[1].upper() == "TABLES":
+                    return self._show_tables()
+                else:
+                    return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLES"}
+
+            elif op == "USE":
+                if len(partes) > 1 and partes[1].upper() == "TREE":
+                    return self._use_tree(partes[2:])
+                elif len(partes) > 1 and partes[1].upper() == "TABLE":
+                    return self._use_table(partes[2:])
+                else:
+                    return {"error": "Uso: USE TREE <árbol> | USE TABLE <nombre>"}
+            elif op == "CREATE" and len(partes) > 1 and partes[1].upper() == "TABLE":
+                return self._create_table(partes[2:])
+            elif op == "DROP" and len(partes) > 1 and partes[1].upper() == "TABLE":
+                return self._drop_table(partes[2:])
             else:
                 return {"error": f"Comando desconocido: '{op}'"}
         except Exception as e:
             return {"error": str(e)}
+        
+    @property
+    def sm(self):
+        return self.tablas[self.tabla_activa]
         
     # parsers
     def _insert(self, partes):
@@ -166,6 +190,85 @@ class QueryEngine:
             "mensaje": f"{n} registro(s) actualizado(s)",
             "arbol":   "AVL + Rojo-Negro"
         }
+    
+    # CREATE TABLE:
+    def _create_table(self, partes):
+        if not partes:
+            return {"error": "Uso: CREATE TABLE nombre [campo:tipo ...]"}
+        nombre = partes[0].lower()
+        if nombre in self.tablas:
+            return {"error": f"La tabla '{nombre}' ya existe"}
+        
+        sm_nuevo = StorageManager()
+        
+        # esquema opcional
+        if len(partes) > 1:
+            campos = {}
+            for parte in partes[1:]:
+                if ":" not in parte:
+                    return {"error": f"Formato de esquema inválido: '{parte}'. Usa campo:tipo"}
+                campo, tipo = parte.split(":", 1)
+                campos[campo] = tipo
+            try:
+                sm_nuevo.definir_esquema(campos)
+            except ValueError as e:
+                return {"error": str(e)}
+        
+        self.tablas[nombre] = sm_nuevo
+        esquema = sm_nuevo.esquema or "(sin esquema fijo)"
+        return {
+            "tipo":    "create_table",
+            "datos":   [],
+            "mensaje": f"Tabla '{nombre}' creada. Esquema: {esquema}",
+            "tabla":   nombre,
+            "arbol": "Rojo-Negro",
+        }
+
+    # DROP = reset(), NO delete:
+    def _drop_table(self, partes):
+        if not partes:
+            return {"error": "Uso: DROP TABLE nombre"}
+        nombre = partes[0].lower()
+        if nombre not in self.tablas:
+            return {"error": f"La tabla '{nombre}' no existe"}
+        if nombre == "default":
+            return {"error": "No se puede eliminar la tabla 'default'"}
+        self.tablas[nombre].reset()  # vacía datos, árboles se reconstruyen
+        esquema_guardado = self.tablas[nombre].esquema  # reset() limpia esquema también
+        return {
+            "tipo":    "drop_table",
+            "datos":   [],
+            "mensaje": f"Tabla '{nombre}' vaciada (esquema eliminado)",
+            "tabla":   self.tabla_activa,
+            "arbol": "-"
+        }
+
+    def _use_table(self, partes):
+        if not partes:
+            return {"error": "Uso: USE TABLE nombre"}
+        nombre = partes[0].lower()
+        if nombre not in self.tablas:
+            return {"error": f"Tabla '{nombre}' no existe. Usa CREATE TABLE primero"}
+        self.tabla_activa = nombre
+        return {
+            "tipo":    "use_table",
+            "datos":   [],
+            "mensaje": f"Tabla activa: '{nombre}'",
+            "tabla":   nombre,
+            "arbol": "-"
+        }
+
+    def _show_tables(self):
+        filas = [
+            {
+                "tabla":     nombre,
+                "registros": sm.info()["registros"],
+                "esquema":   sm.info()["esquema"] or "(libre)",
+                "activa":    nombre == self.tabla_activa,
+            }
+            for nombre, sm in self.tablas.items()
+        ]
+        return {"tipo": "show_tables", "datos": filas, "arbol": "-"}
     
     def _help(self, partes):
         temas = {

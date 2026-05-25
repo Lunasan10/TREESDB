@@ -17,9 +17,13 @@ class StorageManager:
         self.registros = {}
         self.indices = {}
         self._siguiente_id = 1
+        
+        self.esquema = {}
     
     # INSERT:
     def insert(self, datos: dict):
+        self._validar_registro(datos)
+        
         id_nuevo = self._siguiente_id
         self._siguiente_id += 1
         
@@ -169,13 +173,38 @@ class StorageManager:
             
         return len(registros_a_actualizar)
     
+    # CREATE:
+    def definir_esquema(self, campos: dict):
+        tipos_validos = {"int", "text", "real", "bool"}
+        for campo, tipo in campos.items():
+            if tipo not in tipos_validos:
+                raise ValueError(f"Tipo inválido '{tipo}'. Usa: {tipos_validos}")
+        self.esquema = campos
+        
+    def _validar_registro(self, datos: dict):
+        if not self.esquema:
+            return
+        for campo, tipo in self.esquema.items():
+            if campo not in datos:
+                continue
+            valor = datos[campo]
+            if tipo == "int" and not isinstance(valor, int):
+                raise TypeError(f"'{campo}' debe ser entero, recivió {type(valor).__name__}")
+            elif tipo == "real" and not isinstance(valor, (int, float)):
+                raise TypeError(f"'{campo}' debe ser real, recibió {type(valor).__name__}")
+            elif tipo == "text" and not isinstance(valor, str):
+                raise TypeError(f"'{campo}' debe ser text, recibió {type(valor).__name__}")
+            elif tipo == "bool" and not isinstance(valor, bool):
+                raise TypeError(f"'{campo}' debe ser bool, recibió {type(valor).__name__}")
+    
     # INFO:
     def info(self):
         return {
             "registros"      : len(self.registros),
             "altura_avl"     : self.avl.raiz.altura if self.avl.raiz else 0,
             "indices"        : list(self.indices.keys()),
-            "siguiente_id"   : self._siguiente_id
+            "siguiente_id"   : self._siguiente_id,
+            "esquema"        : self.esquema,
         }
         
     def reset(self):

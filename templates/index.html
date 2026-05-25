@@ -99,6 +99,11 @@
       <span class="chip" onclick="usarChip('DELETE')">DELETE</span>
       <span class="chip" onclick="usarChip('INDEX')">INDEX</span>
       <span class="chip" onclick="usarChip('HELP')">HELP</span>
+      <span class="chip-sep">|</span>
+      <span class="chip chip-table" onclick="usarChip('CREATE TABLE')">CREATE TABLE</span>
+      <span class="chip chip-table" onclick="usarChip('DROP TABLE')">DROP TABLE</span>
+      <span class="chip chip-table" onclick="usarChip('USE TABLE')">USE TABLE</span>
+      <span class="chip chip-table" onclick="usarChip('SHOW TABLES')">SHOW TABLES</span>
     </div>
 
     <div id="resultado-panel">
@@ -112,6 +117,7 @@
       <div class="stat">🌳 Registros: <span class="stat-val" id="s-registros">0</span></div>
       <div class="stat">🌲 Altura AVL: <span class="stat-val" id="s-altura">0</span></div>
       <div class="stat">🌷 Índices: <span class="stat-val" id="s-indices">ninguno</span></div>
+      <div class="stat">🗂️ Tabla: <span class="stat-val" id="s-tabla">default</span></div>
     </div>
     <div class="stat-group">
       <div class="stat" style="color:var(--text-faint);font-size:.58rem">TREEDB v1.0 · Luna | Nicolás | Geraldine</div>

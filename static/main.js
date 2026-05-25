@@ -15,6 +15,10 @@ const CHIP_EXAMPLES = {
   DELETE: 'DELETE nombre = Ana',
   INDEX:  'INDEX ciudad',
   HELP:   'HELP TREES',
+  'CREATE TABLE':'CREATE TABLE usuarios nombre:text edad:int',  
+  'DROP TABLE':  'DROP TABLE usuarios',                         
+  'USE TABLE':   'USE TABLE usuarios',                          
+  'SHOW TABLES': 'SHOW TABLES',           
 };
 
 let tabActual = 'avl';
@@ -73,7 +77,14 @@ function setTab(tab) {
 async function mostrarArbolActual(animar = false) {
   const badge = document.getElementById('op-badge');
   const disp  = document.getElementById('tree-display');
-  const empty = document.getElementById('tree-empty');
+  let empty = document.getElementById('tree-empty');
+  if (!empty) {
+    empty = document.createElement('div');
+    empty.id = 'tree-empty';
+    empty.className = 'tree-empty';
+    empty.innerHTML = '<span>🌿</span><span>Árbol vacío</span>';
+    document.getElementById('visualizador').appendChild(empty);
+  }
 
   if (animar) {
     badge.style.display = 'block';
@@ -139,6 +150,10 @@ async function ejecutar() {
   DELETE: '🍂 ELIMINANDO...',
   RANGE:  '↔ RANGO...',
   INDEX:  '📌 INDEXANDO...',
+  CREATE: '🗂️ CREANDO TABLA...',  
+  DROP:   '🗑️ VACIANDO TABLA...', 
+  USE:    '🔀 CAMBIANDO TABLA...', 
+  SHOW:   '📋 LISTANDO...',        
   };
   badge.textContent = badgeTextos[op] || '⚙️ PROCESANDO...';
   badge.style.display = 'block';
@@ -149,6 +164,7 @@ async function ejecutar() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ comando: cmd })
     });
+
     const data = await res.json();
 
     input.value = '';
@@ -175,6 +191,38 @@ function mostrarResultado(data, cmd) {
     div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
     return;
   }
+
+  if (data.tipo === 'use_table') {
+    div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
+    actualizarTablaActiva(data.tabla);
+    return;
+  }
+
+  if (data.tipo === 'show_tables') {
+    if (!data.datos || data.datos.length === 0) {
+      div.innerHTML = `<span class="msg-empty">No hay tablas.</span>`;
+      return;
+    }
+    const cols = ['tabla', 'registros', 'esquema', 'activa'];
+    let html = `<table><thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead><tbody>`;
+    data.datos.forEach(r => {
+      const activa = r.activa ? ' style="background:var(--accent-glow)"' : '';
+      html += `<tr${activa}>${cols.map(c => {
+        let val = r[c];
+        if (c === 'activa') val = val ? '✅' : '';
+        if (c === 'esquema' && typeof val === 'object') val = JSON.stringify(val);
+        return `<td>${escapeHtml(String(val ?? ''))}</td>`;
+      }).join('')}</tr>`;
+    });
+    html += '</tbody></table>';
+    div.innerHTML = html;
+    return;
+  }
+
+if (data.tipo === 'create_table' || data.tipo === 'drop_table') {
+  div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
+  return;
+}
 
   if (data.error) {
     div.innerHTML = `<span class="msg-err">❌ ${escapeHtml(data.error)}</span>`;
@@ -243,7 +291,7 @@ function renderHelp(texto) {
 /* ── LOG ───────────────────────────────────────────── */
 function agregarLog(cmd, data) {
   const op     = cmd.split(' ')[0].toLowerCase();
-  const pillar = data.error ? 'error' : op;
+  const pillar = data.error ? 'error' : (data.tipo || op);
   const n      = data.datos ? data.datos.length : 0;
   const hora   = new Date().toLocaleTimeString('es-CO', { hour12: false });
   const arbol  = data.arbol ? `<span class="log-arbol">${data.arbol}</span>` : '';
@@ -280,7 +328,13 @@ async function actualizarStats() {
     document.getElementById('s-altura').textContent    = data.altura_avl;
     document.getElementById('s-indices').textContent   =
       data.indices.length ? data.indices.join(', ') : 'ninguno';
+    if (data.tabla) actualizarTablaActiva(data.tabla);
   } catch(e) {}
+}
+
+function actualizarTablaActiva(nombre) {
+  const el = document.getElementById('s-tabla');
+  if (el) el.textContent = nombre;
 }
 
 /* ── CHIPS ─────────────────────────────────────────── */
@@ -371,8 +425,8 @@ function renderizarSVG(arbol, tab) {
   let edges = '';
   let nodes = '';
 
-  function colorNodo(n) {
-    const isDark = !document.documentElement.classList.contains('light');
+function colorNodo(n) {
+  const isDark = !document.documentElement.classList.contains('light');
 
     if (tab === 'avl') return {
       fill:   isDark ? '#1e3a28' : '#e8f5ee',
@@ -393,7 +447,7 @@ function renderizarSVG(arbol, tab) {
     return { fill: isDark ? '#1e3a28' : '#e8f5ee', stroke: 'var(--accent)', text: 'var(--accent)' };
   }
 
-  function dibujarArista(x1, y1, x2, y2, color) {
+function dibujarArista(x1, y1, x2, y2, color) {
     edges += `<line 
       x1="${x1 + offsetX}" y1="${y1 + cfg.padY}" 
       x2="${x2 + offsetX}" y2="${y2 + cfg.padY}"
@@ -401,7 +455,7 @@ function renderizarSVG(arbol, tab) {
       marker-end="url(#arrow-${tab})"/>`;
   }
 
-  function dibujarNodoBinario(n) {
+function dibujarNodoBinario(n) {
     if (!n) return;
     const cx = n.x + offsetX;
     const cy = n.y + cfg.padY;
@@ -462,7 +516,7 @@ function renderizarSVG(arbol, tab) {
       </g>`;
   }
 
-  function dibujarNodoB(n) {
+function dibujarNodoB(n) {
     if (!n) return;
     const c      = colorNodo(n);
     const nClaves = n.claves.length;
