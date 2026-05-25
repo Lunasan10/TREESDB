@@ -86,25 +86,36 @@ class StorageManager:
     # DELETE
     def delete(self, campo, valor):
         registros_a_eliminar = self.select(campo, valor)
-        
+
         for registro in registros_a_eliminar:
             id_reg = registro["id"]
-            
-            # Eliminar
-            self.bmas.eliminar(id_reg)
-            self.avl.eliminar(id_reg)
-            self.b.eliminar(id_reg)
-            
-            # Limpiamos índices secundarios
+
+            try:
+                self.bmas.eliminar(id_reg)
+            except Exception as e:
+                print(f"[TRESDB] Error eliminando de B+: {e}")
+            try:
+                self.avl.eliminar(id_reg)
+            except Exception as e:
+                print(f"[TRESDB] Error eliminando de AVL: {e}")
+            try:
+                self.b.eliminar(id_reg)
+            except Exception as e:
+                print(f"[TRESDB] Error eliminando de B: {e}")
+
             for campo_idx, indice in self.indices.items():
                 valor_idx = registro.get(campo_idx)
                 if valor_idx in indice:
                     indice[valor_idx] = [i for i in indice[valor_idx] if i != id_reg]
                     if not indice[valor_idx]:
                         del indice[valor_idx]
-            
+
             del self.registros[id_reg]
-        
+
+        # si quedó vacío, reiniciar los árboles para evitar estado inválido
+        if len(self.registros) == 0:
+            self.reset()
+
         return len(registros_a_eliminar)
     
     # INDEX
@@ -132,3 +143,12 @@ class StorageManager:
             "indices"        : list(self.indices.keys()),
             "siguiente_id"   : self._siguiente_id
         }
+        
+    def reset(self):
+        self.bmas          = ArbolBMas(t=2)
+        self.avl           = AVL()
+        self.rn            = RojoNegro()
+        self.b             = ArbolB(t=2)
+        self.registros     = {}
+        self.indices       = {}
+        self._siguiente_id = 1

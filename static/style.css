@@ -167,26 +167,60 @@ html,body{
 .tab-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
 
 /* ── ZONA CENTRAL ──────────────────────────────────── */
-#center{display:grid;grid-template-columns:1fr 250px;overflow:hidden}
-
-/* ── VISUALIZADOR ──────────────────────────────────── */
-#visualizador{
-  position:relative;overflow:auto;
-  padding:1.25rem 1.5rem;background:var(--bg);
+#center {
+  display: flex;
+  overflow: hidden;
+  min-height: 0;        /* ← fix crítico para grids anidados */
 }
+
+#resize-handle {
+  width: 5px;
+  background: var(--border);
+  cursor: col-resize;
+  flex-shrink: 0;
+  transition: background .2s;
+  position: relative;
+  z-index: 10;
+}
+
+#resize-handle:hover,
+#resize-handle.dragging {
+  background: var(--accent);
+}
+/* ── VISUALIZADOR ──────────────────────────────────── */
+#visualizador {
+  flex: 1;
+  min-width: 200px;
+  overflow: auto;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg);
+  min-height: 0;
+  min-width: 0;
+}
+
 .tree-watermark{
   position:absolute;inset:0;display:flex;
   align-items:center;justify-content:center;
   pointer-events:none;opacity:.035;font-size:16rem;user-select:none;
 }
-#tree-display{
-  position:relative;z-index:1;font-size:.8rem;
-  line-height:1.85;color:var(--text-primary);white-space:pre;
+#tree-display {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  min-width: 100%;
 }
-.tree-empty{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:.6rem;
-  color:var(--text-muted);font-size:.78rem;z-index:1;
+.tree-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  color: var(--text-muted);
+  font-size: .78rem;
+  z-index: 1;
+  pointer-events: none;  /* ← este es el fix */
 }
 .tree-empty .ei{font-size:2.5rem;opacity:.35}
 
@@ -200,10 +234,17 @@ html,body{
 @keyframes pulse-badge{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── LOG SIDEBAR ───────────────────────────────────── */
-#log-panel{
-  border-left:1px solid var(--border);
-  display:flex;flex-direction:column;background:var(--surface);
+#log-panel {
+  width: 250px;
+  min-width: 150px;
+  max-width: 500px;
+  border-left: none;    /* el handle reemplaza el borde */
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  flex-shrink: 0;
 }
+
 .log-header{
   padding:.55rem 1rem;border-bottom:1px solid var(--border);
   font-size:.62rem;font-weight:700;letter-spacing:.1em;
@@ -222,6 +263,18 @@ html,body{
   padding:.12rem .38rem;border-radius:3px;font-size:.58rem;
   font-weight:700;letter-spacing:.05em;white-space:nowrap;
 }
+
+.log-arbol {
+  display: inline-block;
+  padding: .1rem .35rem;
+  border: 1px solid var(--border-bright);
+  border-radius: 3px;
+  font-size: .58rem;
+  color: var(--accent);
+  margin-left: .3rem;
+  font-weight: 600;
+}
+
 .pill-insert{background:rgba(63,185,80,.15);color:var(--success)}
 .pill-select{background:rgba(88,166,255,.15);color:#58a6ff}
 .pill-delete{background:rgba(248,81,73,.15);color:var(--error)}
@@ -311,6 +364,18 @@ html,body{
 @keyframes fade-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 .fade-in{animation:fade-in .18s ease forwards}
 
+/* ── ANIMACIÓN DE ÁRBOL ────────────────────────────── */
+#tree-display .line {
+  display: block;
+  opacity: 0;
+  transform: translateX(-6px);
+  animation: line-appear .25s ease forwards;
+}
+
+@keyframes line-appear {
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* ── COLORES ÁRBOL ─────────────────────────────────── */
 .na{color:var(--avl)}
 .nr{color:var(--rn-red)}
@@ -318,3 +383,18 @@ html,body{
 .nb{color:var(--b-tree)}
 .np{color:var(--bplus)}
 .nh{color:var(--accent);font-weight:600}
+
+/* ── SVG NODOS ─────────────────────────────────────── */
+.svg-node {
+  opacity: 0;
+  animation: node-appear .35s ease forwards;
+}
+
+@keyframes node-appear {
+  from { opacity: 0; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+#tree-display svg {
+  overflow: visible;
+}

@@ -55,13 +55,13 @@ class QueryEngine:
                     pass
             datos[campo] = valor
         registro = self.sm.insert(datos)
-        return {"tipo": "insert", "datos": [registro]}
+        return {"tipo": "insert", "datos": [registro], "arbol": "AVL + B+"}
 
     def _select(self, partes):
         if len(partes) < 3 or partes[1] != "=":
             return {"error": "Formato: SELECT campo = valor"}
         campo = partes[0]
-        valor = partes [2]
+        valor = partes[2]
         try:
             valor = int(valor)
         except ValueError:
@@ -70,7 +70,8 @@ class QueryEngine:
             except ValueError:
                 pass
         resultado = self.sm.select(campo, valor)
-        return {"tipo": "select", "datos": resultado}
+        arbol = "AVL" if campo == "id" else "Rojo-Negro" if campo in self.sm.indices else "B+"
+        return {"tipo": "select", "datos": resultado, "arbol": arbol}
 
     def _range(self, partes):
         if len(partes) < 3:
@@ -82,7 +83,7 @@ class QueryEngine:
         except ValueError:
             return {"error": "inicio y fin deben ser números"}
         resultado = self.sm.range(campo, inicio, fin)
-        return {"tipo": "range", "datos": resultado}
+        return {"tipo": "range", "datos": resultado, "arbol": "B+"}
     
     def _delete(self, partes):
         if len(partes) != 3:
@@ -99,13 +100,13 @@ class QueryEngine:
             except ValueError:
                 pass
         n = self.sm.delete(campo, valor)
-        return {"tipo": "delete", "datos": [], "mensaje": f"{n} registro(s) eliminado(s)"}
+        return {"tipo": "delete", "datos": [], "mensaje": f"{n} registro(s) eliminado(s)", "arbol": "AVL + Rojo-Negro"}
     
     def _index(self, partes):
         if not partes:
             return {"error": "INDEX require un campo. Ej: INDEX ciudad"}
         mensaje = self.sm.index(partes[0])
-        return {"tipo": "index", "datos": [], "mensaje": mensaje}
+        return {"tipo": "index", "datos": [], "mensaje": mensaje, "arbol": "Rojo-Negro"}
     
     def _show_tree(self, partes):
         arboles = {"avl", "rn", "b", "bmas", "b+"}
