@@ -25,10 +25,6 @@ class QueryEngine:
                 return self._delete(partes[1:])
             elif op == "INDEX":
                 return self._index(partes[1:])
-            elif op == "SHOW" and len(partes) > 1 and partes[1].upper() == "TREE":
-                return self._show_tree(partes[2:])
-            elif op == "USE" and len(partes) > 1 and partes[1].upper() == "TREE":
-                return self._use_tree(partes[2:])
             elif op == "INFO":
                 return {"tipo": "info", "datos": [self.sm.info()]}
             elif op == "HELP":
