@@ -32,6 +32,22 @@ def test_esquema_valida_tipos():
     assert r["datos"][0]["precio"] == 1200.5, f"UPDATE inválido no debe modificar datos: {r}"
     print("✅ Validación de tipos OK")
 
+def test_esquema_bool_desde_comandos():
+    qe = QueryEngine()
+    qe.ejecutar("CREATE TABLE banderas activo:bool")
+    qe.ejecutar("USE TABLE banderas")
+
+    r = qe.ejecutar("INSERT activo:1")
+    assert r["tipo"] == "insert", f"Insert bool falló: {r}"
+    assert r["datos"][0]["activo"] is True, f"Se esperaba bool True: {r}"
+
+    r = qe.ejecutar("UPDATE activo = true SET activo:false")
+    assert r["tipo"] == "update", f"Update bool falló: {r}"
+
+    r = qe.ejecutar("SELECT id = 1")
+    assert r["datos"][0]["activo"] is False, f"Se esperaba bool False: {r}"
+    print("✅ Parseo bool en comandos OK")
+
 def test_use_table_aislamiento():
     qe = QueryEngine()
     qe.ejecutar("CREATE TABLE a")
@@ -109,6 +125,7 @@ def test_use_tabla_inexistente():
 if __name__ == "__main__":
     test_create_table()
     test_esquema_valida_tipos()
+    test_esquema_bool_desde_comandos()
     test_use_table_aislamiento()
     test_drop_table_vacia_datos()
     test_drop_default_prohibido()

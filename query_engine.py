@@ -47,6 +47,15 @@ class QueryEngine:
     @property
     def sm(self):
         return self.tablas[self.tabla_activa]
+
+    def _parse_valor(self, campo, valor):
+        if self.sm.esquema.get(campo) == "bool":
+            valor_normalizado = valor.lower()
+            if valor_normalizado in {"true", "1"}:
+                return True
+            if valor_normalizado in {"false", "0"}:
+                return False
+        return valor
         
     # parsers
     def _insert(self, partes):
@@ -58,7 +67,9 @@ class QueryEngine:
                 return {"error": f"Formato inválido: '{parte}'. Usa campo:valor"}
             campo, valor = parte.split(":", 1)
             try:
-                valor = int(valor)
+                valor = self._parse_valor(campo, valor)
+                if isinstance(valor, str):
+                    valor = int(valor)
             except ValueError:
                 try:
                     valor = float(valor)
@@ -164,7 +175,9 @@ class QueryEngine:
         campo = partes[0]
         valor = partes[2]
         try:
-            valor = int(valor)
+            valor = self._parse_valor(campo, valor)
+            if isinstance(valor, str):
+                valor = int(valor)
         except ValueError:
             try:
                 valor = float(valor)
@@ -177,7 +190,9 @@ class QueryEngine:
                 return {"error": f"Formato inválido en SET: '{parte}'. Usa campo:valor"}
             k, v = parte.split(":", 1)
             try:
-                v = int(v)
+                v = self._parse_valor(k, v)
+                if isinstance(v, str):
+                    v = int(v)
             except ValueError:
                 try:
                     v = float(v)
