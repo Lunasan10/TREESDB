@@ -10,10 +10,15 @@ const TAB_COLORS = {
 const CHIP_EXAMPLES = {
   INSERT: 'INSERT nombre:Ana edad:25 ciudad:Bogotá',
   SELECT: 'SELECT nombre = Ana',
+  UPDATE: 'UPDATE nombre = Ana SET edad:26 ciudad:Medellín',
   RANGE:  'RANGE edad 20 30',
   DELETE: 'DELETE nombre = Ana',
   INDEX:  'INDEX ciudad',
   HELP:   'HELP TREES',
+  'CREATE TABLE':'CREATE TABLE usuarios nombre:text edad:int',  
+  'DROP TABLE':  'DROP TABLE usuarios',                         
+  'USE TABLE':   'USE TABLE usuarios',                          
+  'SHOW TABLES': 'SHOW TABLES',           
 };
 
 let tabActual = 'avl';
@@ -51,6 +56,7 @@ function toggleTheme() {
   const isLight = root.classList.toggle('light');
   document.getElementById('theme-icon').textContent = isLight ? '☀️' : '🌙';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  mostrarArbolActual();
 }
 
 function toggleAbout() {
@@ -71,7 +77,14 @@ function setTab(tab) {
 async function mostrarArbolActual(animar = false) {
   const badge = document.getElementById('op-badge');
   const disp  = document.getElementById('tree-display');
-  const empty = document.getElementById('tree-empty');
+  let empty = document.getElementById('tree-empty');
+  if (!empty) {
+    empty = document.createElement('div');
+    empty.id = 'tree-empty';
+    empty.className = 'tree-empty';
+    empty.innerHTML = '<span>🌿</span><span>Árbol vacío</span>';
+    document.getElementById('visualizador').appendChild(empty);
+  }
 
   if (animar) {
     badge.style.display = 'block';
@@ -137,6 +150,10 @@ async function ejecutar() {
   DELETE: '🍂 ELIMINANDO...',
   RANGE:  '↔ RANGO...',
   INDEX:  '📌 INDEXANDO...',
+  CREATE: '🗂️ CREANDO TABLA...',  
+  DROP:   '🗑️ VACIANDO TABLA...', 
+  USE:    '🔀 CAMBIANDO TABLA...', 
+  SHOW:   '📋 LISTANDO...',        
   };
   badge.textContent = badgeTextos[op] || '⚙️ PROCESANDO...';
   badge.style.display = 'block';
@@ -147,6 +164,7 @@ async function ejecutar() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ comando: cmd })
     });
+
     const data = await res.json();
 
     input.value = '';
@@ -173,6 +191,38 @@ function mostrarResultado(data, cmd) {
     div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
     return;
   }
+
+  if (data.tipo === 'use_table') {
+    div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
+    actualizarTablaActiva(data.tabla);
+    return;
+  }
+
+  if (data.tipo === 'show_tables') {
+    if (!data.datos || data.datos.length === 0) {
+      div.innerHTML = `<span class="msg-empty">No hay tablas.</span>`;
+      return;
+    }
+    const cols = ['tabla', 'registros', 'esquema', 'activa'];
+    let html = `<table><thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead><tbody>`;
+    data.datos.forEach(r => {
+      const activa = r.activa ? ' style="background:var(--accent-glow)"' : '';
+      html += `<tr${activa}>${cols.map(c => {
+        let val = r[c];
+        if (c === 'activa') val = val ? '✅' : '';
+        if (c === 'esquema' && typeof val === 'object') val = JSON.stringify(val);
+        return `<td>${escapeHtml(String(val ?? ''))}</td>`;
+      }).join('')}</tr>`;
+    });
+    html += '</tbody></table>';
+    div.innerHTML = html;
+    return;
+  }
+
+if (data.tipo === 'create_table' || data.tipo === 'drop_table') {
+  div.innerHTML = `<span class="msg-ok">✅ ${escapeHtml(data.mensaje)}</span>`;
+  return;
+}
 
   if (data.error) {
     div.innerHTML = `<span class="msg-err">❌ ${escapeHtml(data.error)}</span>`;
@@ -241,14 +291,14 @@ function renderHelp(texto) {
 /* ── LOG ───────────────────────────────────────────── */
 function agregarLog(cmd, data) {
   const op     = cmd.split(' ')[0].toLowerCase();
-  const pillar = data.error ? 'error' : op;
+  const pillar = data.error ? 'error' : (data.tipo || op);
   const n      = data.datos ? data.datos.length : 0;
   const hora   = new Date().toLocaleTimeString('es-CO', { hour12: false });
   const arbol  = data.arbol ? `<span class="log-arbol">${data.arbol}</span>` : '';
   const result = data.error
-    ? data.error.substring(0, 40)
+    ? data.error
     : data.mensaje
-      ? data.mensaje.substring(0, 40)
+      ? data.mensaje
       : `${n} resultado(s)`;
 
   const entry = document.createElement('div');
@@ -278,7 +328,13 @@ async function actualizarStats() {
     document.getElementById('s-altura').textContent    = data.altura_avl;
     document.getElementById('s-indices').textContent   =
       data.indices.length ? data.indices.join(', ') : 'ninguno';
+    if (data.tabla) actualizarTablaActiva(data.tabla);
   } catch(e) {}
+}
+
+function actualizarTablaActiva(nombre) {
+  const el = document.getElementById('s-tabla');
+  if (el) el.textContent = nombre;
 }
 
 /* ── CHIPS ─────────────────────────────────────────── */
@@ -287,6 +343,8 @@ function usarChip(cmd) {
   input.value = CHIP_EXAMPLES[cmd] || cmd;
   input.focus();
 }
+
+
 
 /* ── UTILS ─────────────────────────────────────────── */
 function escapeHtml(str) {
@@ -309,13 +367,14 @@ const SVG_CONFIG = {
 
 // ── Calcular posiciones x,y de cada nodo ─────────────
 
-function calcularPosiciones(nodo, profundidad = 0, contador = { val: 0 }) {
+function calcularPosiciones(nodo, profundidad = 0, contador = { val: 0 }, tab = 'avl') {
   if (!nodo) return null;
 
-  const izq = calcularPosiciones(nodo.izquierda || null, profundidad + 1, contador);
-  const x   = contador.val * SVG_CONFIG.minSep;
+  const izq = calcularPosiciones(nodo.izquierda || null, profundidad + 1, contador, tab);
+  const sep = SVG_CONFIG.minSep * (tab === 'rn' ? 1.8 : 1);
+  const x   = contador.val * sep;
   contador.val++;
-  const der = calcularPosiciones(nodo.derecha || null, profundidad + 1, contador);
+  const der = calcularPosiciones(nodo.derecha || null, profundidad + 1, contador, tab);
 
   return { ...nodo, x, y: profundidad * SVG_CONFIG.levelH, izquierda: izq, derecha: der };
 }
@@ -356,7 +415,7 @@ function renderizarSVG(arbol, tab) {
   const esB   = tab === 'b' || tab === 'bmas';
   const nodos = esB
     ? calcularPosicionesB(arbol)
-    : calcularPosiciones(arbol);
+    : calcularPosiciones(arbol, 0, { val: 0 }, tab);
 
   const { minX, maxX, maxY } = bbox(nodos, tab);
   const offsetX = cfg.padX - minX;
@@ -366,8 +425,8 @@ function renderizarSVG(arbol, tab) {
   let edges = '';
   let nodes = '';
 
-  function colorNodo(n) {
-    const isDark = !document.documentElement.classList.contains('light');
+function colorNodo(n) {
+  const isDark = !document.documentElement.classList.contains('light');
 
     if (tab === 'avl') return {
       fill:   isDark ? '#1e3a28' : '#e8f5ee',
@@ -388,7 +447,7 @@ function renderizarSVG(arbol, tab) {
     return { fill: isDark ? '#1e3a28' : '#e8f5ee', stroke: 'var(--accent)', text: 'var(--accent)' };
   }
 
-  function dibujarArista(x1, y1, x2, y2, color) {
+function dibujarArista(x1, y1, x2, y2, color) {
     edges += `<line 
       x1="${x1 + offsetX}" y1="${y1 + cfg.padY}" 
       x2="${x2 + offsetX}" y2="${y2 + cfg.padY}"
@@ -396,25 +455,52 @@ function renderizarSVG(arbol, tab) {
       marker-end="url(#arrow-${tab})"/>`;
   }
 
-  function dibujarNodoBinario(n) {
+function dibujarNodoBinario(n) {
     if (!n) return;
     const cx = n.x + offsetX;
     const cy = n.y + cfg.padY;
     const c  = colorNodo(n);
+    const height = tab === 'rn' ? 44 : cfg.nodeR * 2;
 
     if (n.izquierda) {
-      dibujarArista(n.x, n.y + cfg.nodeR, n.izquierda.x, n.izquierda.y - cfg.nodeR, c.stroke);
+      const yOrigen = n.y + height / 2;
+      const yDestino = n.izquierda.y - (tab === 'rn' ? height / 2 : cfg.nodeR);
+      dibujarArista(n.x, yOrigen, n.izquierda.x, yDestino, c.stroke);
       dibujarNodoBinario(n.izquierda);
     }
     if (n.derecha) {
-      dibujarArista(n.x, n.y + cfg.nodeR, n.derecha.x, n.derecha.y - cfg.nodeR, c.stroke);
+      const yOrigen = n.y + height / 2;
+      const yDestino = n.derecha.y - (tab === 'rn' ? height / 2 : cfg.nodeR);
+      dibujarArista(n.x, yOrigen, n.derecha.x, yDestino, c.stroke);
       dibujarNodoBinario(n.derecha);
     }
 
-    // etiqueta superior (fb o color RN)
-    const etiqueta = tab === 'avl'
-      ? String(n.fb)
-      : tab === 'rn' ? n.color : '';
+    if (tab === 'rn') {
+      const texto = String(n.clave);
+      const partes = texto.split(/:(.+)/);
+      const tipo = partes[0] || texto;
+      const valor = partes[1] !== undefined ? partes[1] : tipo;
+      const boxW = Math.max(cfg.nodeR * 3.5, Math.max(tipo.length * 8, valor.length * 9) + 18);
+      const boxH = height;
+      const x0 = cx - boxW / 2;
+      const y0 = cy - boxH / 2;
+
+      nodes += `
+        <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">
+          <rect x="${x0}" y="${y0}" width="${boxW}" height="${boxH}" rx="8"
+            fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>
+          <text x="${cx}" y="${cy - 6}" text-anchor="middle"
+            font-size="9" fill="${c.text}" font-family="JetBrains Mono"
+            font-weight="700">${escapeHtml(tipo)}</text>
+          <text x="${cx}" y="${cy + 12}" text-anchor="middle"
+            font-size="10" fill="${c.text}" font-family="JetBrains Mono"
+            font-weight="600">${escapeHtml(valor)}</text>
+        </g>`;
+      return;
+    }
+
+    // etiqueta superior (fb)
+    const etiqueta = tab === 'avl' ? String(n.fb) : '';
 
     nodes += `
       <g class="svg-node" style="animation-delay:${Math.random() * 300}ms">
@@ -430,7 +516,7 @@ function renderizarSVG(arbol, tab) {
       </g>`;
   }
 
-  function dibujarNodoB(n) {
+function dibujarNodoB(n) {
     if (!n) return;
     const c      = colorNodo(n);
     const nClaves = n.claves.length;

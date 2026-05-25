@@ -277,6 +277,7 @@ html,body{
 
 .pill-insert{background:rgba(63,185,80,.15);color:var(--success)}
 .pill-select{background:rgba(88,166,255,.15);color:#58a6ff}
+.pill-update {background: rgba(88,166,255,.15); color: #a371f7;}
 .pill-delete{background:rgba(248,81,73,.15);color:var(--error)}
 .pill-range {background:rgba(227,168,87,.15);color:var(--warning)}
 .pill-index {background:rgba(163,201,110,.15);color:var(--lime)}
@@ -332,6 +333,30 @@ html,body{
 }
 .chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-glow)}
 
+.chip-sep {
+  color: var(--border-bright);
+  font-size: .7rem;
+  padding: 0 .2rem;
+}
+
+.chip-table {
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+.chip-table:hover {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+}
+
+.pill-create_table,
+.pill-drop_table,
+.pill-use_table,
+.pill-show_tables {
+  background: rgba(76,175,125,.15);
+  color: var(--accent);
+}
+
 #resultado-panel{overflow:auto;padding:.5rem 1.2rem}
 #resultado-panel table{width:100%;border-collapse:collapse;font-size:.76rem}
 #resultado-panel th{
@@ -345,6 +370,13 @@ html,body{
 }
 #resultado-panel tr:hover td{background:var(--surface-high)}
 
+.log-result{
+  color:var(--text-muted);
+  font-size:.62rem;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+
 .msg-ok   {color:var(--success);font-size:.78rem}
 .msg-err  {color:var(--error);font-size:.78rem}
 .msg-info {color:var(--lime);font-size:.75rem;white-space:pre-wrap;line-height:1.8}
@@ -357,6 +389,26 @@ html,body{
   font-size:.62rem;
 }
 .stat-group{display:flex;gap:1.25rem;align-items:center}
+
+@media (max-width: 860px) {
+  #header{flex-wrap:wrap;gap:.75rem;justify-content:center}
+  .header-right{width:100%;justify-content:flex-end}
+  #tabs{padding:0 .9rem;overflow-x:auto}
+  #center{flex-direction:column}
+  #resize-handle{display:none}
+  #visualizador,#log-panel{width:100%;min-height:200px}
+  #log-panel{max-height:280px;overflow:auto}
+  #bottom{grid-template-rows:auto auto 1fr}
+}
+
+@media (max-width: 560px) {
+  #app{grid-template-rows:48px 34px auto 240px 30px}
+  #console-row{flex-direction:column;align-items:stretch;gap:.5rem;padding:1rem}
+  #btn-run{width:100%}
+  .cmd-chips{padding:0 1rem;overflow-x:auto}
+  #resultado-panel{padding:1rem}
+  #log-panel{max-height:220px}
+}
 .stat{display:flex;align-items:center;gap:.3rem;color:var(--text-muted)}
 .stat-val{color:var(--accent);font-weight:600}
 

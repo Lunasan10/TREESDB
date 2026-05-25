@@ -55,3 +55,17 @@ assert info["registros"] == 4
 assert info["siguiente_id"] == 6
 assert "ciudad" in info["indices"]
 print(sm.info())
+
+print("\n── UPDATE con esquema inválido")
+sm_esquema = StorageManager()
+sm_esquema.definir_esquema({"edad": "int"})
+registro = sm_esquema.insert({"edad": 25})
+
+try:
+    sm_esquema.update("id", registro["id"], {"edad": "veinticinco"})
+    assert False, "❌ UPDATE debía fallar por tipo inválido"
+except TypeError:
+    pass
+
+assert sm_esquema.select("id", registro["id"])[0]["edad"] == 25
+print("UPDATE rechazó el cambio inválido y conservó el registro original")

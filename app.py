@@ -91,7 +91,9 @@ def query():
 
 @app.route("/info")
 def info():
-    return jsonify(qe.sm.info())
+    datos = qe.sm.info()
+    datos["tabla"] = qe.tabla_activa   # ← agregar esta línea
+    return jsonify(datos)
 
 @app.route("/tree/<tab>")
 def get_tree(tab):
