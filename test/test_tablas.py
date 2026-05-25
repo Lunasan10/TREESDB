@@ -71,8 +71,8 @@ def test_drop_table_vacia_datos():
 
     # La tabla sigue existiendo pero vacía
     assert "temporal" in qe.tablas
-    r = qe.ejecutar("SELECT nombre = Borrame")  # sigue en tabla activa (default)
-    # El select va a default porque DROP no cambia tabla_activa
+    r = qe.ejecutar("SELECT nombre = Borrame")  # sigue en la tabla activa (temporal)
+    # DROP no cambia tabla_activa; el SELECT anterior sigue consultando `temporal`
     qe.ejecutar("USE TABLE temporal")
     info = qe.ejecutar("INFO")
     assert info["datos"][0]["registros"] == 0
