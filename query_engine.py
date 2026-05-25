@@ -1,6 +1,5 @@
 import json
 import os
-import re
 from pathlib import Path
 from storage_manager import StorageManager
 
@@ -301,7 +300,11 @@ class QueryEngine:
         if not partes:
             return {"error": "SAVE requiere un nombre de archivo. Ej: SAVE estado.json"}
         nombre_archivo = " ".join(partes).strip()
-        if not re.fullmatch(r"[A-Za-z0-9._-]+\.json", nombre_archivo):
+        if not nombre_archivo.lower().endswith(".json"):
+            return {"error": "SAVE solo permite nombres de archivo .json válidos, sin rutas"}
+        base = nombre_archivo[:-5]
+        permitidos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+        if not base or any(c not in permitidos for c in base):
             return {"error": "SAVE solo permite nombres de archivo .json válidos, sin rutas"}
 
         directorio_seguro = Path("data").resolve()
