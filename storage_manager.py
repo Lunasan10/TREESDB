@@ -191,7 +191,7 @@ class StorageManager:
                 continue
             valor = datos[campo]
             if tipo == "int" and not isinstance(valor, int):
-                raise TypeError(f"'{campo}' debe ser entero, recivió {type(valor).__name__}")
+                raise TypeError(f"'{campo}' debe ser entero, recibió {type(valor).__name__}")
             elif tipo == "real" and not isinstance(valor, (int, float)):
                 raise TypeError(f"'{campo}' debe ser real, recibió {type(valor).__name__}")
             elif tipo == "text" and not isinstance(valor, str):
