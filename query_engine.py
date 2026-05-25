@@ -204,7 +204,7 @@ class QueryEngine:
             return {"error": "SET requiere al menos un campo a actualizar"}
         
         n = self.sm.update(campo, valor, actualizaciones)
-        return{
+        return {
             "tipo":    "update",
             "datos":   [],
             "mensaje": f"{n} registro(s) actualizado(s)",
