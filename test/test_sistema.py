@@ -77,23 +77,18 @@ assert "ciudad" in r["datos"][0]["indices"]
 print("  ✅ Test 10 — INFO")
 
 # ── Test 11: SAVE/LOAD persistencia ───────────────────
-import tempfile
-
-with tempfile.NamedTemporaryFile(delete=False, suffix='.json') as tmp:
-    ruta = tmp.name
-
+ruta = f"estado_test_{os.getpid()}.json"
 r = qe.ejecutar(f"SAVE {ruta}")
 assert r["tipo"] == "save"
 assert "Estado guardado" in r["mensaje"]
 
 qe2 = QueryEngine()
-r2 = qe2.ejecutar(f"LOAD {ruta}")
+r2 = qe2.ejecutar(f"LOAD data/{ruta}")
 assert r2["tipo"] == "load"
 assert "Estado cargado" in r2["mensaje"]
 assert qe2.ejecutar("INFO")["datos"][0]["registros"] == 4
 
-import os
-os.remove(ruta)
+os.remove(f"data/{ruta}")
 print("  ✅ Test 11 — SAVE/LOAD persistencia")
 
 # ── Test 12: HELP ─────────────────────────────────────

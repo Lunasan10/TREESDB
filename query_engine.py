@@ -1,4 +1,6 @@
 import json
+import os
+from pathlib import Path
 from storage_manager import StorageManager
 
 class QueryEngine:
@@ -297,16 +299,26 @@ class QueryEngine:
     def _save(self, partes):
         if not partes:
             return {"error": "SAVE requiere un nombre de archivo. Ej: SAVE estado.json"}
-        ruta = " ".join(partes)
+        nombre_archivo = " ".join(partes).strip()
+        if not nombre_archivo.lower().endswith(".json"):
+            return {"error": "SAVE requiere un archivo .json"}
+        if "/" in nombre_archivo or "\\" in nombre_archivo:
+            return {"error": "SAVE solo permite nombres de archivo, sin rutas"}
+
+        directorio_seguro = Path("data")
+        directorio_seguro.mkdir(exist_ok=True)
+        ruta = (directorio_seguro / nombre_archivo).resolve()
+        if directorio_seguro.resolve() not in ruta.parents:
+            return {"error": "Ruta de guardado inválida"}
+
         estado = {
             "tablas": {nombre: sm.to_dict() for nombre, sm in self.tablas.items()},
             "tabla_activa": self.tabla_activa,
         }
-        tmp = ruta + ".tmp"
+        tmp = Path(str(ruta) + ".tmp")
         try:
             with open(tmp, "w", encoding="utf-8") as f:
                 json.dump(estado, f, ensure_ascii=False, indent=2)
-            import os
             os.replace(tmp, ruta)
             return {"tipo": "save", "datos": [], "mensaje": f"Estado guardado en '{ruta}'", "arbol": "-"}
         except Exception as e:
