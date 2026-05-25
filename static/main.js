@@ -297,16 +297,6 @@ function escapeHtml(str) {
     .replace(/"/g, '&quot;');
 }
 
-/* ── INIT ──────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  actualizarStats();
-  mostrarArbolActual();
-
-  document.getElementById('cmd-input')
-    .addEventListener('keydown', e => { if (e.key === 'Enter') ejecutar(); });
-});
-
 /* ── SVG RENDERER ──────────────────────────────────── */
 
 const SVG_CONFIG = {
