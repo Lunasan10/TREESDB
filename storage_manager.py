@@ -252,11 +252,17 @@ class StorageManager:
         if isinstance(siguiente_id, int) and siguiente_id > self._siguiente_id:
             self._siguiente_id = siguiente_id
 
-        for campo in data.get("indices", []):
+        indices = data.get("indices", [])
+        if not isinstance(indices, list):
+            raise TypeError("'indices' debe ser una lista")
+
+        for campo in indices:
+            if not isinstance(campo, str):
+                raise ValueError("Cada índice debe ser un string")
             try:
                 self.index(campo)
-            except Exception:
-                pass
+            except (TypeError, ValueError, KeyError) as exc:
+                raise ValueError(f"No se pudo reconstruir el índice '{campo}'") from exc
 
         return len(self.registros)
 
