@@ -282,7 +282,7 @@ function renderHelp(texto) {
       html += '<div class="help-space"></div>';
     } else if (t.startsWith('🌿') || t.startsWith('🌳')) {
       html += `<div class="help-title">${escapeHtml(t)}</div>`;
-    } else if (/^(?:HELP|INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|TREES|CREATE TABLE|DROP TABLE|USE TABLE|SHOW TABLES|INFO)(?:\b|\s|\[)/.test(t)) {
+    } else if (/^(?:HELP|INSERT|SELECT|RANGE|DELETE|UPDATE|INDEX|SAVE|LOAD|GUARDAR|CARGAR|TREES|CREATE TABLE|DROP TABLE|USE TABLE|SHOW TABLES|INFO)(?:\b|\s|\[)/.test(t)) {
       const [cmd, ...resto] = t.split('→');
       html += `<div class="help-row">
         <span class="help-cmd">${escapeHtml(cmd.trim())}</span>
