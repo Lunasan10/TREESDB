@@ -374,7 +374,7 @@ class QueryEngine:
             RANGE  campo inicio fin
             DELETE campo = valor
             UPDATE campo = valor SET campo1:valor1 campo2:valor2
-        2. Utilidades del Sitema (herramientas extra):
+        2. Utilidades del Sistema (herramientas extra):
             INDEX  campo
             SHOW TREE [avl|rn|b|bmas]
             USE TREE  [avl|rn|b|bmas|auto]
