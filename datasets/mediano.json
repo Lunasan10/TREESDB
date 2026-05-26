@@ -1,0 +1,912 @@
+{
+  "tablas": {
+    "default": {
+      "registros": {
+        "1": {
+          "id": 1,
+          "nombre": "Pedro García",
+          "edad": 65,
+          "ciudad": "Bucaramanga",
+          "departamento": "Finanzas",
+          "salario": 2950869.8,
+          "activo": true
+        },
+        "2": {
+          "id": 2,
+          "nombre": "Alejandro López",
+          "edad": 55,
+          "ciudad": "Cúcuta",
+          "departamento": "Sistemas",
+          "salario": 1693681.93,
+          "activo": true
+        },
+        "3": {
+          "id": 3,
+          "nombre": "Jorge Alonso",
+          "edad": 56,
+          "ciudad": "Bogotá",
+          "departamento": "Logística",
+          "salario": 2792444.73,
+          "activo": false
+        },
+        "4": {
+          "id": 4,
+          "nombre": "Jorge Moreno",
+          "edad": 55,
+          "ciudad": "Bucaramanga",
+          "departamento": "Sistemas",
+          "salario": 6432247.89,
+          "activo": true
+        },
+        "5": {
+          "id": 5,
+          "nombre": "Sebastián Herrera",
+          "edad": 35,
+          "ciudad": "Cali",
+          "departamento": "Finanzas",
+          "salario": 7721884.97,
+          "activo": false
+        },
+        "6": {
+          "id": 6,
+          "nombre": "Pedro López",
+          "edad": 42,
+          "ciudad": "Medellín",
+          "departamento": "Operaciones",
+          "salario": 7008713.38,
+          "activo": false
+        },
+        "7": {
+          "id": 7,
+          "nombre": "Luis Moreno",
+          "edad": 52,
+          "ciudad": "Medellín",
+          "departamento": "TI",
+          "salario": 2012201.29,
+          "activo": false
+        },
+        "8": {
+          "id": 8,
+          "nombre": "Ricardo Jiménez",
+          "edad": 54,
+          "ciudad": "Barranquilla",
+          "departamento": "Ventas",
+          "salario": 1797858.49,
+          "activo": true
+        },
+        "9": {
+          "id": 9,
+          "nombre": "Andrés López",
+          "edad": 32,
+          "ciudad": "Medellín",
+          "departamento": "TI",
+          "salario": 3306828.42,
+          "activo": false
+        },
+        "10": {
+          "id": 10,
+          "nombre": "Carlos Jiménez",
+          "edad": 40,
+          "ciudad": "Barranquilla",
+          "departamento": "Marketing",
+          "salario": 6061832.04,
+          "activo": true
+        },
+        "11": {
+          "id": 11,
+          "nombre": "Ricardo Ruiz",
+          "edad": 52,
+          "ciudad": "Barranquilla",
+          "departamento": "RRHH",
+          "salario": 4504691.38,
+          "activo": false
+        },
+        "12": {
+          "id": 12,
+          "nombre": "Alejandro Vargas",
+          "edad": 61,
+          "ciudad": "Cartagena",
+          "departamento": "Sistemas",
+          "salario": 2988812.47,
+          "activo": true
+        },
+        "13": {
+          "id": 13,
+          "nombre": "Valentina Romero",
+          "edad": 35,
+          "ciudad": "Medellín",
+          "departamento": "Finanzas",
+          "salario": 7435384.81,
+          "activo": false
+        },
+        "14": {
+          "id": 14,
+          "nombre": "Laura Muñoz",
+          "edad": 43,
+          "ciudad": "Pereira",
+          "departamento": "RRHH",
+          "salario": 3221721.08,
+          "activo": true
+        },
+        "15": {
+          "id": 15,
+          "nombre": "Alejandro Gutiérrez",
+          "edad": 34,
+          "ciudad": "Santa Marta",
+          "departamento": "TI",
+          "salario": 7335848.74,
+          "activo": false
+        },
+        "16": {
+          "id": 16,
+          "nombre": "Diego Vargas",
+          "edad": 26,
+          "ciudad": "Manizales",
+          "departamento": "Legal",
+          "salario": 2090911.18,
+          "activo": true
+        },
+        "17": {
+          "id": 17,
+          "nombre": "Pedro Torres",
+          "edad": 58,
+          "ciudad": "Cali",
+          "departamento": "TI",
+          "salario": 5376658.7,
+          "activo": false
+        },
+        "18": {
+          "id": 18,
+          "nombre": "Camila Ramos",
+          "edad": 47,
+          "ciudad": "Manizales",
+          "departamento": "Marketing",
+          "salario": 7812009.45,
+          "activo": true
+        },
+        "19": {
+          "id": 19,
+          "nombre": "Pedro Gutiérrez",
+          "edad": 35,
+          "ciudad": "Cartagena",
+          "departamento": "Ventas",
+          "salario": 3407750.84,
+          "activo": true
+        },
+        "20": {
+          "id": 20,
+          "nombre": "Daniela García",
+          "edad": 64,
+          "ciudad": "Bucaramanga",
+          "departamento": "Logística",
+          "salario": 6452754.29,
+          "activo": true
+        },
+        "21": {
+          "id": 21,
+          "nombre": "Andrés Alonso",
+          "edad": 56,
+          "ciudad": "Barranquilla",
+          "departamento": "RRHH",
+          "salario": 3930440.04,
+          "activo": true
+        },
+        "22": {
+          "id": 22,
+          "nombre": "Alejandro Alonso",
+          "edad": 18,
+          "ciudad": "Santa Marta",
+          "departamento": "Operaciones",
+          "salario": 4675937.1,
+          "activo": true
+        },
+        "23": {
+          "id": 23,
+          "nombre": "Diego Castro",
+          "edad": 33,
+          "ciudad": "Bogotá",
+          "departamento": "Finanzas",
+          "salario": 7207062.39,
+          "activo": true
+        },
+        "24": {
+          "id": 24,
+          "nombre": "María Muñoz",
+          "edad": 22,
+          "ciudad": "Manizales",
+          "departamento": "RRHH",
+          "salario": 2334544.52,
+          "activo": false
+        },
+        "25": {
+          "id": 25,
+          "nombre": "Alejandro Ruiz",
+          "edad": 34,
+          "ciudad": "Manizales",
+          "departamento": "Dirección",
+          "salario": 4250396.61,
+          "activo": true
+        },
+        "26": {
+          "id": 26,
+          "nombre": "Alejandro Díaz",
+          "edad": 63,
+          "ciudad": "Bucaramanga",
+          "departamento": "TI",
+          "salario": 7968470.82,
+          "activo": false
+        },
+        "27": {
+          "id": 27,
+          "nombre": "Daniela Alonso",
+          "edad": 46,
+          "ciudad": "Medellín",
+          "departamento": "Finanzas",
+          "salario": 2960532.69,
+          "activo": false
+        },
+        "28": {
+          "id": 28,
+          "nombre": "Ana Navarro",
+          "edad": 53,
+          "ciudad": "Barranquilla",
+          "departamento": "Dirección",
+          "salario": 2931413.0,
+          "activo": true
+        },
+        "29": {
+          "id": 29,
+          "nombre": "Luis Vargas",
+          "edad": 22,
+          "ciudad": "Bogotá",
+          "departamento": "Operaciones",
+          "salario": 1960572.77,
+          "activo": true
+        },
+        "30": {
+          "id": 30,
+          "nombre": "Isabel Muñoz",
+          "edad": 31,
+          "ciudad": "Manizales",
+          "departamento": "RRHH",
+          "salario": 6201791.68,
+          "activo": false
+        },
+        "31": {
+          "id": 31,
+          "nombre": "Jorge Muñoz",
+          "edad": 44,
+          "ciudad": "Barranquilla",
+          "departamento": "Ventas",
+          "salario": 2130050.29,
+          "activo": false
+        },
+        "32": {
+          "id": 32,
+          "nombre": "Diego Álvarez",
+          "edad": 44,
+          "ciudad": "Pereira",
+          "departamento": "Sistemas",
+          "salario": 5876869.56,
+          "activo": true
+        },
+        "33": {
+          "id": 33,
+          "nombre": "Luis Romero",
+          "edad": 64,
+          "ciudad": "Cartagena",
+          "departamento": "Ventas",
+          "salario": 3116266.17,
+          "activo": true
+        },
+        "34": {
+          "id": 34,
+          "nombre": "Alejandro Moreno",
+          "edad": 26,
+          "ciudad": "Cúcuta",
+          "departamento": "RRHH",
+          "salario": 3310543.44,
+          "activo": true
+        },
+        "35": {
+          "id": 35,
+          "nombre": "María Moreno",
+          "edad": 53,
+          "ciudad": "Medellín",
+          "departamento": "Sistemas",
+          "salario": 5738941.81,
+          "activo": true
+        },
+        "36": {
+          "id": 36,
+          "nombre": "María Vargas",
+          "edad": 28,
+          "ciudad": "Cúcuta",
+          "departamento": "Legal",
+          "salario": 4628829.72,
+          "activo": false
+        },
+        "37": {
+          "id": 37,
+          "nombre": "Luis Ruiz",
+          "edad": 42,
+          "ciudad": "Bogotá",
+          "departamento": "TI",
+          "salario": 3223819.88,
+          "activo": false
+        },
+        "38": {
+          "id": 38,
+          "nombre": "Andrés Álvarez",
+          "edad": 62,
+          "ciudad": "Manizales",
+          "departamento": "Legal",
+          "salario": 2506179.36,
+          "activo": false
+        },
+        "39": {
+          "id": 39,
+          "nombre": "Laura Martínez",
+          "edad": 55,
+          "ciudad": "Manizales",
+          "departamento": "Sistemas",
+          "salario": 6361841.14,
+          "activo": true
+        },
+        "40": {
+          "id": 40,
+          "nombre": "Luis Navarro",
+          "edad": 48,
+          "ciudad": "Manizales",
+          "departamento": "Logística",
+          "salario": 2523312.73,
+          "activo": true
+        },
+        "41": {
+          "id": 41,
+          "nombre": "Carlos López",
+          "edad": 56,
+          "ciudad": "Medellín",
+          "departamento": "Finanzas",
+          "salario": 4124541.08,
+          "activo": true
+        },
+        "42": {
+          "id": 42,
+          "nombre": "Paola Ramos",
+          "edad": 20,
+          "ciudad": "Santa Marta",
+          "departamento": "Ventas",
+          "salario": 4224961.95,
+          "activo": false
+        },
+        "43": {
+          "id": 43,
+          "nombre": "Isabel Díaz",
+          "edad": 60,
+          "ciudad": "Cartagena",
+          "departamento": "Finanzas",
+          "salario": 3226494.33,
+          "activo": true
+        },
+        "44": {
+          "id": 44,
+          "nombre": "Andrés Moreno",
+          "edad": 38,
+          "ciudad": "Medellín",
+          "departamento": "Sistemas",
+          "salario": 4478855.9,
+          "activo": true
+        },
+        "45": {
+          "id": 45,
+          "nombre": "María Gutiérrez",
+          "edad": 31,
+          "ciudad": "Manizales",
+          "departamento": "Marketing",
+          "salario": 2360967.71,
+          "activo": false
+        },
+        "46": {
+          "id": 46,
+          "nombre": "María Vargas",
+          "edad": 41,
+          "ciudad": "Bucaramanga",
+          "departamento": "RRHH",
+          "salario": 4348199.72,
+          "activo": false
+        },
+        "47": {
+          "id": 47,
+          "nombre": "Ricardo Alonso",
+          "edad": 18,
+          "ciudad": "Manizales",
+          "departamento": "Marketing",
+          "salario": 7556414.26,
+          "activo": true
+        },
+        "48": {
+          "id": 48,
+          "nombre": "Sofía Mora",
+          "edad": 25,
+          "ciudad": "Medellín",
+          "departamento": "Logística",
+          "salario": 2510411.41,
+          "activo": false
+        },
+        "49": {
+          "id": 49,
+          "nombre": "Ricardo Díaz",
+          "edad": 63,
+          "ciudad": "Cartagena",
+          "departamento": "Finanzas",
+          "salario": 5968731.34,
+          "activo": false
+        },
+        "50": {
+          "id": 50,
+          "nombre": "Natalia Muñoz",
+          "edad": 34,
+          "ciudad": "Bogotá",
+          "departamento": "Ventas",
+          "salario": 5622848.91,
+          "activo": false
+        },
+        "51": {
+          "id": 51,
+          "nombre": "Luis García",
+          "edad": 39,
+          "ciudad": "Cali",
+          "departamento": "Marketing",
+          "salario": 2550282.85,
+          "activo": false
+        },
+        "52": {
+          "id": 52,
+          "nombre": "Alejandro Álvarez",
+          "edad": 53,
+          "ciudad": "Bogotá",
+          "departamento": "Ventas",
+          "salario": 1989085.09,
+          "activo": true
+        },
+        "53": {
+          "id": 53,
+          "nombre": "Alejandro Martínez",
+          "edad": 41,
+          "ciudad": "Santa Marta",
+          "departamento": "Logística",
+          "salario": 2462609.61,
+          "activo": true
+        },
+        "54": {
+          "id": 54,
+          "nombre": "Luis Castro",
+          "edad": 41,
+          "ciudad": "Bogotá",
+          "departamento": "Operaciones",
+          "salario": 2865497.5,
+          "activo": true
+        },
+        "55": {
+          "id": 55,
+          "nombre": "Pedro Jiménez",
+          "edad": 53,
+          "ciudad": "Cúcuta",
+          "departamento": "Dirección",
+          "salario": 6371604.47,
+          "activo": true
+        },
+        "56": {
+          "id": 56,
+          "nombre": "Carlos Ruiz",
+          "edad": 44,
+          "ciudad": "Bogotá",
+          "departamento": "RRHH",
+          "salario": 6287669.07,
+          "activo": false
+        },
+        "57": {
+          "id": 57,
+          "nombre": "Sebastián Vargas",
+          "edad": 35,
+          "ciudad": "Cali",
+          "departamento": "Ventas",
+          "salario": 3986521.2,
+          "activo": true
+        },
+        "58": {
+          "id": 58,
+          "nombre": "Felipe Vargas",
+          "edad": 30,
+          "ciudad": "Pereira",
+          "departamento": "Operaciones",
+          "salario": 3483740.64,
+          "activo": true
+        },
+        "59": {
+          "id": 59,
+          "nombre": "Jorge García",
+          "edad": 60,
+          "ciudad": "Barranquilla",
+          "departamento": "TI",
+          "salario": 3633702.68,
+          "activo": true
+        },
+        "60": {
+          "id": 60,
+          "nombre": "Isabel Jiménez",
+          "edad": 59,
+          "ciudad": "Manizales",
+          "departamento": "TI",
+          "salario": 5916867.77,
+          "activo": false
+        },
+        "61": {
+          "id": 61,
+          "nombre": "Ana Sánchez",
+          "edad": 34,
+          "ciudad": "Cali",
+          "departamento": "Dirección",
+          "salario": 7756473.05,
+          "activo": false
+        },
+        "62": {
+          "id": 62,
+          "nombre": "Luis Sánchez",
+          "edad": 56,
+          "ciudad": "Cúcuta",
+          "departamento": "Operaciones",
+          "salario": 6235542.89,
+          "activo": false
+        },
+        "63": {
+          "id": 63,
+          "nombre": "Sebastián Ramos",
+          "edad": 50,
+          "ciudad": "Medellín",
+          "departamento": "TI",
+          "salario": 7346780.76,
+          "activo": true
+        },
+        "64": {
+          "id": 64,
+          "nombre": "Isabel Martínez",
+          "edad": 63,
+          "ciudad": "Cúcuta",
+          "departamento": "Sistemas",
+          "salario": 4879482.27,
+          "activo": true
+        },
+        "65": {
+          "id": 65,
+          "nombre": "Diego Álvarez",
+          "edad": 22,
+          "ciudad": "Cartagena",
+          "departamento": "Dirección",
+          "salario": 3540451.69,
+          "activo": true
+        },
+        "66": {
+          "id": 66,
+          "nombre": "Andrés Alonso",
+          "edad": 37,
+          "ciudad": "Cúcuta",
+          "departamento": "Operaciones",
+          "salario": 4115602.52,
+          "activo": false
+        },
+        "67": {
+          "id": 67,
+          "nombre": "Alejandro Torres",
+          "edad": 30,
+          "ciudad": "Cúcuta",
+          "departamento": "TI",
+          "salario": 5902566.64,
+          "activo": true
+        },
+        "68": {
+          "id": 68,
+          "nombre": "Ricardo Navarro",
+          "edad": 37,
+          "ciudad": "Cúcuta",
+          "departamento": "Logística",
+          "salario": 6919213.6,
+          "activo": false
+        },
+        "69": {
+          "id": 69,
+          "nombre": "Andrés Díaz",
+          "edad": 45,
+          "ciudad": "Santa Marta",
+          "departamento": "Dirección",
+          "salario": 5755586.55,
+          "activo": false
+        },
+        "70": {
+          "id": 70,
+          "nombre": "Daniela Moreno",
+          "edad": 61,
+          "ciudad": "Barranquilla",
+          "departamento": "Logística",
+          "salario": 4575710.21,
+          "activo": true
+        },
+        "71": {
+          "id": 71,
+          "nombre": "María Castro",
+          "edad": 50,
+          "ciudad": "Santa Marta",
+          "departamento": "Operaciones",
+          "salario": 2107016.8,
+          "activo": true
+        },
+        "72": {
+          "id": 72,
+          "nombre": "Andrés Vargas",
+          "edad": 30,
+          "ciudad": "Cali",
+          "departamento": "Sistemas",
+          "salario": 1800389.17,
+          "activo": false
+        },
+        "73": {
+          "id": 73,
+          "nombre": "Ricardo López",
+          "edad": 47,
+          "ciudad": "Cúcuta",
+          "departamento": "Dirección",
+          "salario": 2763829.04,
+          "activo": false
+        },
+        "74": {
+          "id": 74,
+          "nombre": "Felipe Romero",
+          "edad": 33,
+          "ciudad": "Cali",
+          "departamento": "Sistemas",
+          "salario": 7302288.87,
+          "activo": true
+        },
+        "75": {
+          "id": 75,
+          "nombre": "Sebastián Vargas",
+          "edad": 29,
+          "ciudad": "Manizales",
+          "departamento": "Legal",
+          "salario": 1826419.5,
+          "activo": true
+        },
+        "76": {
+          "id": 76,
+          "nombre": "Pedro Moreno",
+          "edad": 26,
+          "ciudad": "Pereira",
+          "departamento": "Logística",
+          "salario": 7921300.94,
+          "activo": false
+        },
+        "77": {
+          "id": 77,
+          "nombre": "Daniela Ramos",
+          "edad": 64,
+          "ciudad": "Manizales",
+          "departamento": "TI",
+          "salario": 6898699.6,
+          "activo": false
+        },
+        "78": {
+          "id": 78,
+          "nombre": "Carlos Muñoz",
+          "edad": 46,
+          "ciudad": "Bucaramanga",
+          "departamento": "Finanzas",
+          "salario": 6959108.77,
+          "activo": false
+        },
+        "79": {
+          "id": 79,
+          "nombre": "Natalia Muñoz",
+          "edad": 58,
+          "ciudad": "Barranquilla",
+          "departamento": "Marketing",
+          "salario": 4359171.86,
+          "activo": false
+        },
+        "80": {
+          "id": 80,
+          "nombre": "Jorge Mora",
+          "edad": 39,
+          "ciudad": "Cartagena",
+          "departamento": "Logística",
+          "salario": 2023754.77,
+          "activo": true
+        },
+        "81": {
+          "id": 81,
+          "nombre": "Jorge Romero",
+          "edad": 62,
+          "ciudad": "Cali",
+          "departamento": "Finanzas",
+          "salario": 1917487.53,
+          "activo": false
+        },
+        "82": {
+          "id": 82,
+          "nombre": "Valentina Gutiérrez",
+          "edad": 47,
+          "ciudad": "Cúcuta",
+          "departamento": "Sistemas",
+          "salario": 2844423.53,
+          "activo": false
+        },
+        "83": {
+          "id": 83,
+          "nombre": "Camila Navarro",
+          "edad": 62,
+          "ciudad": "Bogotá",
+          "departamento": "Dirección",
+          "salario": 3972476.69,
+          "activo": true
+        },
+        "84": {
+          "id": 84,
+          "nombre": "Diego Castro",
+          "edad": 42,
+          "ciudad": "Cúcuta",
+          "departamento": "Logística",
+          "salario": 6358851.85,
+          "activo": true
+        },
+        "85": {
+          "id": 85,
+          "nombre": "Felipe Vargas",
+          "edad": 35,
+          "ciudad": "Cúcuta",
+          "departamento": "Legal",
+          "salario": 1688661.33,
+          "activo": false
+        },
+        "86": {
+          "id": 86,
+          "nombre": "Camila Ruiz",
+          "edad": 47,
+          "ciudad": "Cali",
+          "departamento": "Dirección",
+          "salario": 4971803.59,
+          "activo": false
+        },
+        "87": {
+          "id": 87,
+          "nombre": "Paola Navarro",
+          "edad": 60,
+          "ciudad": "Bogotá",
+          "departamento": "Ventas",
+          "salario": 5677872.71,
+          "activo": true
+        },
+        "88": {
+          "id": 88,
+          "nombre": "Daniela Ruiz",
+          "edad": 21,
+          "ciudad": "Bucaramanga",
+          "departamento": "TI",
+          "salario": 3627792.34,
+          "activo": false
+        },
+        "89": {
+          "id": 89,
+          "nombre": "Valentina Herrera",
+          "edad": 42,
+          "ciudad": "Bucaramanga",
+          "departamento": "TI",
+          "salario": 3139764.96,
+          "activo": true
+        },
+        "90": {
+          "id": 90,
+          "nombre": "Felipe García",
+          "edad": 65,
+          "ciudad": "Manizales",
+          "departamento": "Sistemas",
+          "salario": 7999400.89,
+          "activo": false
+        },
+        "91": {
+          "id": 91,
+          "nombre": "Jorge López",
+          "edad": 59,
+          "ciudad": "Bogotá",
+          "departamento": "Sistemas",
+          "salario": 7672476.26,
+          "activo": true
+        },
+        "92": {
+          "id": 92,
+          "nombre": "Ana Ramos",
+          "edad": 27,
+          "ciudad": "Barranquilla",
+          "departamento": "RRHH",
+          "salario": 4578146.9,
+          "activo": true
+        },
+        "93": {
+          "id": 93,
+          "nombre": "Paola Díaz",
+          "edad": 47,
+          "ciudad": "Bucaramanga",
+          "departamento": "Operaciones",
+          "salario": 2590629.43,
+          "activo": true
+        },
+        "94": {
+          "id": 94,
+          "nombre": "Carlos Castro",
+          "edad": 24,
+          "ciudad": "Santa Marta",
+          "departamento": "Sistemas",
+          "salario": 7537766.59,
+          "activo": false
+        },
+        "95": {
+          "id": 95,
+          "nombre": "Camila Díaz",
+          "edad": 22,
+          "ciudad": "Santa Marta",
+          "departamento": "Finanzas",
+          "salario": 2162358.49,
+          "activo": false
+        },
+        "96": {
+          "id": 96,
+          "nombre": "Ricardo Sánchez",
+          "edad": 54,
+          "ciudad": "Bogotá",
+          "departamento": "Operaciones",
+          "salario": 4962844.09,
+          "activo": false
+        },
+        "97": {
+          "id": 97,
+          "nombre": "María Alonso",
+          "edad": 59,
+          "ciudad": "Cartagena",
+          "departamento": "Sistemas",
+          "salario": 7022241.58,
+          "activo": false
+        },
+        "98": {
+          "id": 98,
+          "nombre": "Pedro Álvarez",
+          "edad": 41,
+          "ciudad": "Pereira",
+          "departamento": "RRHH",
+          "salario": 4330666.44,
+          "activo": false
+        },
+        "99": {
+          "id": 99,
+          "nombre": "Ricardo Gutiérrez",
+          "edad": 48,
+          "ciudad": "Pereira",
+          "departamento": "TI",
+          "salario": 6867274.89,
+          "activo": false
+        },
+        "100": {
+          "id": 100,
+          "nombre": "Valentina Vargas",
+          "edad": 23,
+          "ciudad": "Bucaramanga",
+          "departamento": "Legal",
+          "salario": 3085112.35,
+          "activo": false
+        }
+      },
+      "indices": {},
+      "siguiente_id": 101,
+      "esquema": {}
+    }
+  },
+  "tabla_activa": "default"
+}

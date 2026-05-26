@@ -1,0 +1,22 @@
+{
+  "tablas": {
+    "default": {
+      "registros": {
+        "1": {"id": 1, "nombre": "Ana García", "edad": 25, "ciudad": "Bogotá", "activo": true},
+        "2": {"id": 2, "nombre": "Luis Martínez", "edad": 30, "ciudad": "Medellín", "activo": true},
+        "3": {"id": 3, "nombre": "María López", "edad": 22, "ciudad": "Bogotá", "activo": false},
+        "4": {"id": 4, "nombre": "Pedro Sánchez", "edad": 28, "ciudad": "Cali", "activo": true},
+        "5": {"id": 5, "nombre": "Sofía Torres", "edad": 22, "ciudad": "Bogotá", "activo": true},
+        "6": {"id": 6, "nombre": "Carlos Ruiz", "edad": 35, "ciudad": "Barranquilla", "activo": false},
+        "7": {"id": 7, "nombre": "Laura Díaz", "edad": 27, "ciudad": "Medellín", "activo": true},
+        "8": {"id": 8, "nombre": "Jorge Vargas", "edad": 31, "ciudad": "Cali", "activo": true},
+        "9": {"id": 9, "nombre": "Isabel Mora", "edad": 24, "ciudad": "Bogotá", "activo": false},
+        "10": {"id": 10, "nombre": "Andrés Castro", "edad": 29, "ciudad": "Bucaramanga", "activo": true}
+      },
+      "indices": {},
+      "siguiente_id": 11,
+      "esquema": {}
+    }
+  },
+  "tabla_activa": "default"
+}
