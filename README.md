@@ -30,7 +30,10 @@ SELECT nombre = Ana                        # búsqueda exacta
 SELECT id = 3                              # búsqueda por id (AVL)
 RANGE  edad 20 30                          # búsqueda por rango (B+)
 DELETE nombre = Ana                        # eliminar registros
+UPDATE nombre = Ana SET ciudad:Bogotá      # actualizar registros
 INDEX  ciudad                              # crear índice secundario (Rojo-Negro)
+SAVE estado.json                           # guardar estado en JSON
+LOAD estado.json                           # cargar estado desde JSON
 SHOW TREE avl                              # visualizar un árbol
 USE TREE b+                                # forzar árbol manualmente
 HELP                                       # manual integrado

@@ -1,0 +1,35 @@
+{
+  "tablas": {
+    "default": {
+      "esquema": {},
+      "siguiente_id": 1,
+      "registros": [],
+      "indices": []
+    },
+    "usuarios": {
+      "esquema": {
+        "nombre": "text",
+        "edad": "int"
+      },
+      "siguiente_id": 3,
+      "registros": [
+        {
+          "nombre": "Ana",
+          "edad": 25,
+          "ciudad": "Bogotá",
+          "id": 1
+        },
+        {
+          "nombre": "Ana",
+          "edad": 25,
+          "ciudad": "Bogotá",
+          "id": 2
+        }
+      ],
+      "indices": [
+        "ciudad"
+      ]
+    }
+  },
+  "tabla_activa": "usuarios"
+}

@@ -88,6 +88,8 @@
              placeholder="INSERT nombre:Ana edad:25 ciudad:Bogotá"
              autocomplete="off" spellcheck="false">
       <button id="btn-run" onclick="ejecutar()">▶ RUN</button>
+      <button id="btn-save" class="control-btn" onclick="guardarEstado()">💾 GUARDAR</button>
+      <button id="btn-load" class="control-btn" onclick="cargarEstado()">📂 CARGAR</button>
     </div>
 
     <div class="cmd-chips">
@@ -141,10 +143,10 @@
       <h3>¿Para qué usarlo?</h3>
       <p>Guarda cualquier tipo de información, búscala en segundos y observa en tiempo real cómo el sistema la organiza por dentro.</p>
       <h3>Los 4 árboles:</h3>
-      <p>🟢 <strong>AVL</strong> — el buscador. Encuentra cualquier dato exacto al instante: índice primario, búsqueda exacta ultrarrápida</p>
-      <p>🔴 <strong>Rojo-Negro</strong> — el clasificador. Organiza los datos por categorías para búsquedas más rápidas: índices secundarios, inserciones masivas</p>
-      <p>🟤 <strong>B</strong> — el archivero. Decide cómo agrupar la información para que ocupe menos espacio: organización interna de bloques</p>
-      <p>🔵 <strong>B+</strong> — la biblioteca. Guarda todo y permite encontrar rangos completos, como "todos los mayores de 20 años": almacén principal, soporta búsquedas por rango</p>
+      <p>🟢 <strong>AVL</strong> — cuando necesitas búsquedas exactas y respuestas rápidas en la tabla activa. Es el mejor para usar como índice principal y recuperar un registro por llave sin demora.</p>
+      <p>🔴 <strong>Rojo-Negro</strong> — ideal cuando insertas muchos datos seguido y quieres mantener todo ordenado con poco costo. Funciona muy bien como índice secundario para búsquedas frecuentes o filtros por un campo.</p>
+      <p>🟤 <strong>B</strong> — pensado para almacenar datos en bloques grandes. Es útil cuando trabajas con muchos registros y quieres que la base maneje mejor la lectura/escritura en páginas o archivos.</p>
+      <p>🔵 <strong>B+</strong> — excelente para leer rangos completos u ordenar resultados. Perfecto para consultas como "mostrar clientes entre 20 y 30 años" o navegar por datos consecutivos.</p>
     </div>
   </div>
 </div>
