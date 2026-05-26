@@ -365,7 +365,7 @@ class QueryEngine:
             nuevas_tablas[nombre] = sm
 
         self.tablas = nuevas_tablas
-        activa = datos.get("tabla_activa", "default")
+        activa = datos.get("tabla_activa")
         self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas))
         return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{ruta}'", "arbol": "-"}
 
