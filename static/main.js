@@ -82,6 +82,7 @@ async function mostrarArbolActual(animar = false) {
     empty = document.createElement('div');
     empty.id = 'tree-empty';
     empty.className = 'tree-empty';
+    empty.textContent = 'Árbol vacío';
     document.getElementById('visualizador').appendChild(empty);
   }
 
