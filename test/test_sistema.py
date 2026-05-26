@@ -99,16 +99,16 @@ r = qe.ejecutar("HELP INSERT")
 assert "INSERT" in r["mensaje"]
 print("  ✅ Test 12 — HELP")
 
-# ── Test 12: comandos inválidos ───────────────────────
+# ── Test 13: comandos inválidos ───────────────────────
 r = qe.ejecutar("INSERTAR algo")
 assert "error" in r
 r = qe.ejecutar("SELECT sinigual")
 assert "error" in r
 r = qe.ejecutar("")
 assert "error" in r
-print("  ✅ Test 12 — comandos inválidos")
+print("  ✅ Test 13 — comandos inválidos")
 
-# ── Test 13: DELETE total y reinserción ───────────────
+# ── Test 14: DELETE total y reinserción ───────────────
 qe2 = QueryEngine()
 for i in range(5):
     qe2.ejecutar(f"INSERT clave:val{i}")
@@ -116,17 +116,17 @@ for i in range(1, 6):
     qe2.ejecutar(f"DELETE id = {i}")
 r = qe2.ejecutar("INSERT nombre:nuevo edad:1")
 assert r["tipo"] == "insert"
-print("  ✅ Test 13 — DELETE total y reinserción")
+print("  ✅ Test 14 — DELETE total y reinserción")
 
-# ── Test 14: USE TREE ─────────────────────────────────
+# ── Test 15: USE TREE ─────────────────────────────────
 r = qe.ejecutar("USE TREE avl")
 assert r["tipo"] == "use_tree"
 assert r["arbol"] == "avl"
 r = qe.ejecutar("USE TREE auto")
 assert r["arbol"] == "auto"
-print("  ✅ Test 14 — USE TREE")
+print("  ✅ Test 15 — USE TREE")
 
-# ── Test 15: INSERT masivo 100 registros ──────────────
+# ── Test 16: INSERT masivo 100 registros ──────────────
 qe3 = QueryEngine()
 for i in range(100):
     r = qe3.ejecutar(f"INSERT id_externo:{i} valor:{i*2} grupo:{i%5}")
@@ -137,6 +137,6 @@ r = qe3.ejecutar("INDEX grupo")
 assert r["tipo"] == "index"
 r = qe3.ejecutar("SELECT grupo = 0")
 assert len(r["datos"]) == 20   # 100/5
-print("  ✅ Test 15 — INSERT masivo 100 registros + INDEX + SELECT")
+print("  ✅ Test 16 — INSERT masivo 100 registros + INDEX + SELECT")
 
 print("\n🌱 Todos los tests de sistema pasaron — TRESDB listo para demo")
