@@ -355,6 +355,8 @@ class QueryEngine:
         tablas = datos.get("tablas")
         if not isinstance(tablas, dict):
             return {"error": "Archivo inválido: falta la sección 'tablas'"}
+        if not tablas:
+            return {"error": "Archivo inválido: la sección 'tablas' no puede estar vacía"}
 
         nuevas_tablas = {}
         for nombre, estado_tabla in tablas.items():
