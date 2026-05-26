@@ -231,7 +231,13 @@ class StorageManager:
         for registro in registros:
             if not isinstance(registro, dict) or "id" not in registro:
                 raise ValueError("Cada registro debe ser un diccionario con campo 'id'")
+
             id_reg = registro["id"]
+            if not isinstance(id_reg, int) or id_reg <= 0:
+                raise ValueError("El campo 'id' debe ser un entero positivo")
+            if id_reg in self.registros:
+                raise ValueError(f"ID duplicado en la carga: {id_reg}")
+
             self.registros[id_reg] = registro
             self.bmas.insertar(id_reg)
             self.avl.insertar(id_reg)
