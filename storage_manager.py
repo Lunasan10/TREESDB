@@ -222,51 +222,50 @@ class StorageManager:
             raise TypeError("El estado debe ser un diccionario válido")
 
         self.reset()
-        esquema = data.get("esquema", {})
-        if esquema is None:
-            esquema = {}
+
+        # esquema
+        esquema = data.get("esquema") or {}
         if not isinstance(esquema, dict):
             raise TypeError("'esquema' debe ser un diccionario")
-        self.esquema = esquema
+        if esquema:
+            self.definir_esquema(esquema)
 
-        registros = data.get("registros", [])
-        if not isinstance(registros, list):
-            raise TypeError("'registros' debe ser una lista")
+        # registros — insertar uno por uno para reconstruir los árboles
+        registros_raw = data.get("registros", {})
+        if isinstance(registros_raw, dict):
+            registros_raw = list(registros_raw.values())
+        if not isinstance(registros_raw, list):
+            raise TypeError("'registros' debe ser una lista o diccionario")
 
-        for registro in registros:
-            if not isinstance(registro, dict) or "id" not in registro:
-                raise ValueError("Cada registro debe ser un diccionario con campo 'id'")
+        for r in registros_raw:
+            if not isinstance(r, dict):
+                continue
+            id_original = r.get("id")
+            datos = {k: v for k, v in r.items() if k != "id"}
+            # forzar el id original
+            self._siguiente_id = id_original
+            self.insert(datos)
 
-            id_reg = registro["id"]
-            if not isinstance(id_reg, int) or id_reg <= 0:
-                raise ValueError("El campo 'id' debe ser un entero positivo")
-            if id_reg in self.registros:
-                raise ValueError(f"ID duplicado en la carga: {id_reg}")
-
-            self.registros[id_reg] = registro
-            self.bmas.insertar(id_reg)
-            self.avl.insertar(id_reg)
-            self.b.insertar(id_reg)
-
-        if self.registros:
-            self._siguiente_id = max(self.registros.keys()) + 1
-        else:
-            self._siguiente_id = 1
-
+        # siguiente_id — después de insertar
         siguiente_id = data.get("siguiente_id")
-        if isinstance(siguiente_id, int) and siguiente_id > self._siguiente_id:
-            self._siguiente_id = siguiente_id
+        if isinstance(siguiente_id, int):
+            self._siguiente_id = max(siguiente_id, self._siguiente_id)
 
-        indices = data.get("indices", [])
-        if not isinstance(indices, list):
-            raise TypeError("'indices' debe ser una lista")
+        # índices — reconstruir sobre los registros ya insertados
+        indices_raw = data.get("indices", {})
+        if isinstance(indices_raw, dict):
+            campos = list(indices_raw.keys())
+        elif isinstance(indices_raw, list):
+            campos = indices_raw
+        else:
+            campos = []
 
-        for campo in indices:
+        for campo in campos:
             if not isinstance(campo, str):
-                raise ValueError("Cada índice debe ser un string")
+                continue
             try:
                 self.index(campo)
-            except (TypeError, ValueError, KeyError) as exc:
+            except Exception as exc:
                 raise ValueError(f"No se pudo reconstruir el índice '{campo}'") from exc
 
         return len(self.registros)
