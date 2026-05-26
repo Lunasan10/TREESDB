@@ -222,7 +222,12 @@ class StorageManager:
             raise TypeError("El estado debe ser un diccionario válido")
 
         self.reset()
-        self.esquema = data.get("esquema", {}) or {}
+        esquema = data.get("esquema", {})
+        if esquema is None:
+            esquema = {}
+        if not isinstance(esquema, dict):
+            raise TypeError("'esquema' debe ser un diccionario")
+        self.esquema = esquema
 
         registros = data.get("registros", [])
         if not isinstance(registros, list):
