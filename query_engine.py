@@ -404,10 +404,8 @@ class QueryEngine:
             "DROP TABLE":   "🗑️ DROP TABLE nombre\n  ¡Limpia el espacio! Borra una tabla que ya no necesites.\n ¡Úsalo con cuidado, esto borra todo lo que haya dentro!",
             "USE TABLE":    "📁 USE TABLE nombre\n ¡Dile a TreeDB en qué espacio vas a trabajar hoy! Es como abrir una carpeta especial.",
             "SHOW TABLES":   "📋 SHOW TABLES\n  ¿Olivdaste que tablas tienes disponibles? Este comando te muestra todas las que has creado hasta ahora.",
-            "SAVE":         "💾 SAVE archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON. \n Alias: GUARDAR.",
-            "LOAD":         "📂 LOAD archivo.json\n  Restaura el estado guardado desde un archivo JSON. \n Alias: CARGAR.",
-            "GUARDAR":      "💾 GUARDAR archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON. \nEquivale a SAVE.",
-            "CARGAR":       "📂 CARGAR archivo.json\n  Restaura el estado guardado desde un archivo JSON. \n Equivale a LOAD.",
+            "SAVE":         "💾 SAVE archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON.",
+            "LOAD":         "📂 LOAD archivo.json\n  Restaura el estado guardado desde un archivo JSON.",
             "INFO":         "ℹ️ INFO\n  Muestra el estado actual del sistema: registros, altura del árbol y los índices activos. Úsalo para revisar cómo va tu base de datos."
         }
         if not partes:
