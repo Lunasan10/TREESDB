@@ -1,10 +1,19 @@
 import io
 from contextlib import redirect_stdout
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 from query_engine import QueryEngine
+from pathlib import Path   # ← agregar al bloque de imports arriba
+
 
 app = Flask(__name__)
 qe  = QueryEngine()
+
+@app.route("/download/<nombre>")   # ← typo corregido
+def download(nombre):
+    ruta = Path("data") / nombre
+    if not ruta.exists():          # ← .exists() con 's'
+        return jsonify({"error": "Archivo no encontrado"}), 400
+    return send_file(ruta, as_attachment=True)
 
 def capturar_arbol(arbol):
     buffer = io.StringIO()

@@ -1,4 +1,4 @@
-# 🌳 TRESDB
+# 🌳 TREEDB
 > *Base de datos basada en árboles auto-balanceados*
 
 Motor de base de datos construido desde cero sobre 4 árboles autobalanceados. Cada operación usa la estructura más eficiente para esa tarea.

@@ -59,7 +59,7 @@ class StorageManager:
             return []
         
         if campo in self.indices:
-            # Búsqueda por índice secundario (ROji-negro)
+            # Búsqueda por índice secundario (Rojo-negro)
             ids = self.indices[campo].get(valor, [])
             return [self.registros[i] for i in ids]
         
@@ -119,7 +119,9 @@ class StorageManager:
 
         # si quedó vacío, reiniciar los árboles para evitar estado inválido
         if len(self.registros) == 0:
+            esquema_actual = self.esquema
             self.reset()
+            self.esquema = esquema_actual
 
         return len(registros_a_eliminar)
     
@@ -175,7 +177,7 @@ class StorageManager:
             
         return len(registros_a_actualizar)
     
-    # CREATE:
+    # ESQUEMA:
     def definir_esquema(self, campos: dict):
         tipos_validos = {"int", "text", "real", "bool"}
         for campo, tipo in campos.items():
@@ -190,7 +192,7 @@ class StorageManager:
             if campo not in datos:
                 continue
             valor = datos[campo]
-            if tipo == "int" and not isinstance(valor, int):
+            if tipo == "int" and (isinstance(valor, bool) or not isinstance(valor, int)):
                 raise TypeError(f"'{campo}' debe ser entero, recibió {type(valor).__name__}")
             elif tipo == "real" and not isinstance(valor, (int, float)):
                 raise TypeError(f"'{campo}' debe ser real, recibió {type(valor).__name__}")
@@ -202,11 +204,11 @@ class StorageManager:
     # INFO:
     def info(self):
         return {
-            "registros"      : len(self.registros),
-            "altura_avl"     : self.avl.raiz.altura if self.avl.raiz else 0,
-            "indices"        : list(self.indices.keys()),
-            "siguiente_id"   : self._siguiente_id,
-            "esquema"        : self.esquema,
+            "registros": len(self.registros),
+            "altura_avl": self.avl.raiz.altura if self.avl.raiz else 0,
+            "indices": list(self.indices.keys()),
+            "siguiente_id": self._siguiente_id,
+            "esquema": self.esquema,
         }
         
     def to_dict(self):
@@ -243,8 +245,11 @@ class StorageManager:
             id_original = r.get("id")
             datos = {k: v for k, v in r.items() if k != "id"}
             # forzar el id original
-            self._siguiente_id = id_original
-            self.insert(datos)
+            registro = {**datos, "id": id_original}
+            self.registros[id_original] = registro
+            self.avl.insertar(id_original)
+            self.bmas.insertar(id_original)
+            self.b.insertar(id_original)
 
         # siguiente_id — después de insertar
         siguiente_id = data.get("siguiente_id")
@@ -271,10 +276,11 @@ class StorageManager:
         return len(self.registros)
 
     def reset(self):
-        self.bmas          = ArbolBMas(t=2)
-        self.avl           = AVL()
-        self.rn            = RojoNegro()
-        self.b             = ArbolB(t=2)
-        self.registros     = {}
-        self.indices       = {}
+        self.bmas = ArbolBMas(t=2)
+        self.avl = AVL()
+        self.rn = RojoNegro()
+        self.b = ArbolB(t=2)
+        self.registros = {}
+        self.indices = {}
         self._siguiente_id = 1
+        self.esquema = {}

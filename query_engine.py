@@ -23,7 +23,7 @@ class QueryEngine:
             elif op == "SELECT":
                 return self._select(partes[1:])
             elif op == "RANGE":
-                return  self._range(partes[1:])
+                return self._range(partes[1:])
             elif op == "DELETE":
                 return self._delete(partes[1:])
             elif op == "INDEX":
@@ -62,6 +62,7 @@ class QueryEngine:
                 return True
             if valor_normalizado in {"false", "0"}:
                 return False
+            raise ValueError(f"'{campo}' debe ser bool (true/false/1/0), recibió '{valor}'")
         return valor
         
     # parsers
@@ -76,7 +77,13 @@ class QueryEngine:
             try:
                 valor = self._parse_valor(campo, valor)
                 if isinstance(valor, str):
-                    valor = int(valor)
+                    try:
+                        valor = int(valor)
+                    except ValueError:
+                        try:
+                            valor = float(valor)
+                        except ValueError:
+                            pass
             except ValueError:
                 try:
                     valor = float(valor)
@@ -133,7 +140,7 @@ class QueryEngine:
     
     def _index(self, partes):
         if not partes:
-            return {"error": "INDEX require un campo. Ej: INDEX ciudad"}
+            return {"error": "INDEX requiere un campo. Ej: INDEX ciudad"}
         mensaje = self.sm.index(partes[0])
         return {"tipo": "index", "datos": [], "mensaje": mensaje, "arbol": "Rojo-Negro"}
 
@@ -201,15 +208,15 @@ class QueryEngine:
         
         campo = partes[0]
         valor = partes[2]
-        try:
-            valor = self._parse_valor(campo, valor)
-            if isinstance(valor, str):
-                valor = int(valor)
-        except ValueError:
+        valor = self._parse_valor(campo, valor)   # esto puede lanzar ValueError legítimo
+        if isinstance(valor, str):
             try:
-                valor = float(valor)
+                valor = int(valor)
             except ValueError:
-                pass
+                try:
+                    valor = float(valor)
+                except ValueError:
+                    pass
             
         actualizaciones = {}
         for parte in partes[4:]:
@@ -271,7 +278,7 @@ class QueryEngine:
             "arbol": "Rojo-Negro",
         }
 
-    # DROP = reset(), NO delete:
+    # DROP TABLE — vacía datos, conserva esquema: 
     def _drop_table(self, partes):
         if not partes:
             return {"error": "Uso: DROP TABLE nombre"}
@@ -280,13 +287,17 @@ class QueryEngine:
             return {"error": f"La tabla '{nombre}' no existe"}
         if nombre == "default":
             return {"error": "No se puede eliminar la tabla 'default'"}
-        self.tablas[nombre].reset()  # vacía datos, reconstruye árboles y conserva esquema
+        
+        esquema_guardado = self.tablas[nombre].esquema.copy()  # ← guardar antes
+        self.tablas[nombre].reset()
+        self.tablas[nombre].esquema = esquema_guardado          # ← restaurar después
+        
         return {
             "tipo":    "drop_table",
             "datos":   [],
             "mensaje": f"Tabla '{nombre}' vaciada (esquema conservado)",
             "tabla":   self.tabla_activa,
-            "arbol": "-"
+            "arbol":   "-"
         }
 
     def _use_table(self, partes):
@@ -378,16 +389,23 @@ class QueryEngine:
         if not tablas:
             return {"error": "Archivo inválido: la sección 'tablas' no puede estar vacía"}
 
-        nuevas_tablas = {}
-        for nombre, estado_tabla in tablas.items():
-            sm = StorageManager()
-            sm.load_dict(estado_tabla)
-            nuevas_tablas[nombre] = sm
-
-        self.tablas = nuevas_tablas
+        tablas_anteriores = self.tablas
+        tabla_activa_anterior = self.tabla_activa
+        try:
+            nuevas_tablas = {}
+            for nombre, estado_tabla in tablas.items():
+                sm = StorageManager()
+                sm.load_dict(estado_tabla)
+                nuevas_tablas[nombre] = sm
+            self.tablas = nuevas_tablas
+            self.tabla_activa = activa if activa in nuevas_tablas else next(iter(nuevas_tablas))
+        except Exception as e:
+            self.tablas = tablas_anteriores
+            self.tabla_activa = tabla_activa_anterior
+            return {"error": f"LOAD falló, estado restaurado: {e}"}
         activa = datos.get("tabla_activa")
         self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas))
-        return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{ruta}'", "arbol": "-"}
+        return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{nombre_archivo}'", "arbol": "-"}
 
     def _help(self, partes):
         temas = {
@@ -428,7 +446,7 @@ class QueryEngine:
             "CREATE TABLE": "📂 CREATE TABLE nombre [campo:tipo ...]\n  ¡Crea un nuevo espacio, una nueva tabla! Dale un nombre y decide qué timpo de información guardará.",
             "DROP TABLE":   "🗑️ DROP TABLE nombre\n  ¡Limpia el espacio! Borra una tabla que ya no necesites.\n ¡Úsalo con cuidado, esto borra todo lo que haya dentro!",
             "USE TABLE":    "📁 USE TABLE nombre\n ¡Dile a TreeDB en qué espacio vas a trabajar hoy! Es como abrir una carpeta especial.",
-            "SHOW TABLES":   "📋 SHOW TABLES\n  ¿Olivdaste que tablas tienes disponibles? Este comando te muestra todas las que has creado hasta ahora.",
+            "SHOW TABLES":   "📋 SHOW TABLES\n  ¿Olvidaste que tablas tienes disponibles? Este comando te muestra todas las que has creado hasta ahora.",
             "SAVE":         "💾 SAVE archivo.json\n  Guarda el estado completo de las tablas y sus índices en un archivo JSON.",
             "LOAD":         "📂 LOAD archivo.json\n  Restaura el estado guardado desde un archivo JSON.",
             "INFO":         "ℹ️ INFO\n  Muestra el estado actual del sistema: registros, altura del árbol y los índices activos. Úsalo para revisar cómo va tu base de datos."
