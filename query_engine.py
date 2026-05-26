@@ -366,7 +366,7 @@ class QueryEngine:
 
         self.tablas = nuevas_tablas
         activa = datos.get("tabla_activa", "default")
-        self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas), "default")
+        self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas))
         return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{ruta}'", "arbol": "-"}
 
     def _help(self, partes):
