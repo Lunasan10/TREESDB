@@ -392,7 +392,7 @@ class QueryEngine:
             "SELECT": "🔍 SELECT campo = valor\n ¡Encuentra lo que buscas! Pídele al sistema que te muestre los registros que coincidan.",
             "RANGE":  "↔ RANGE campo inicio fin\n  ¿Buscas en un rango en específico? Mira todo lo que esté entre esos valores, perfecto para edades, precios, fechas...",
             "DELETE": "🍂 DELETE campo = valor\n  ¿Ya no necesitas un registro? Elimínalo rápidamente.",
-            "INDEX":  "📌 INDEX campo\n  ¿Tu búsqueda es frecuente? Crea un índice para que el sistema encuentre las cosas mucho más rápdio.",
+            "INDEX":  "📌 INDEX campo\n  ¿Tu búsqueda es frecuente? Crea un índice para que el sistema encuentre las cosas mucho más rápido.",
             "UPDATE": "🛠️ UPDATE campo = valor SET campo1:valor1 campo2:valor2\n  ¿Te equivocaste en un dato? Actualízalo rápidamente sin tener que borrarlo todo.",
             "TREES":  """🌳 Los 4 árboles de TRESDB:
   AVL    → El más equilibrado y rápido para búsquedas exactas. Ideal cuando quieres respuestas precisas y actualizaciones fluidas.
