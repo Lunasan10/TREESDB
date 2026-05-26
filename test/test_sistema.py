@@ -83,7 +83,7 @@ assert r["tipo"] == "save"
 assert "Estado guardado" in r["mensaje"]
 
 qe2 = QueryEngine()
-r2 = qe2.ejecutar(f"LOAD data/{ruta}")
+r2 = qe2.ejecutar(f"LOAD {ruta}")
 assert r2["tipo"] == "load"
 assert "Estado cargado" in r2["mensaje"]
 assert qe2.ejecutar("INFO")["datos"][0]["registros"] == 4

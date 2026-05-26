@@ -329,12 +329,23 @@ class QueryEngine:
     def _load(self, partes):
         if not partes:
             return {"error": "LOAD requiere un nombre de archivo. Ej: LOAD estado.json"}
-        ruta = " ".join(partes)
+        nombre_archivo = " ".join(partes).strip()
+        if not nombre_archivo.lower().endswith(".json"):
+            return {"error": "LOAD solo permite nombres de archivo .json válidos, sin rutas"}
+        base = nombre_archivo[:-5]
+        permitidos = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789._-"
+        if not base or any(c not in permitidos for c in base):
+            return {"error": "LOAD solo permite nombres de archivo .json válidos, sin rutas"}
+
+        directorio_seguro = Path("data").resolve()
+        ruta = (directorio_seguro / nombre_archivo).resolve()
+        if not ruta.is_relative_to(directorio_seguro):
+            return {"error": "Ruta de carga inválida"}
         try:
             with open(ruta, "r", encoding="utf-8") as f:
                 datos = json.load(f)
         except FileNotFoundError:
-            return {"error": f"Archivo no encontrado: '{ruta}'"}
+            return {"error": f"Archivo no encontrado: '{nombre_archivo}'"}
         except Exception as e:
             return {"error": str(e)}
 
