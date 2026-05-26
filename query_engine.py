@@ -349,6 +349,9 @@ class QueryEngine:
         except Exception as e:
             return {"error": str(e)}
 
+        if not isinstance(datos, dict):
+            return {"error": "Archivo inválido: se esperaba un objeto JSON en la raíz"}
+
         tablas = datos.get("tablas")
         if not isinstance(tablas, dict):
             return {"error": "Archivo inválido: falta la sección 'tablas'"}
