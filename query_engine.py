@@ -146,33 +146,13 @@ class QueryEngine:
 
     def _show(self, partes):
         if not partes:
-            return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE|TABLES | SHOW <nombre_tabla>"}
+            return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE|TABLES"}
         objetivo = partes[0].upper()
         if objetivo == "TREE":
             return self._show_tree(partes[1:])
         if objetivo in {"TABLE", "TABLES"}:
             return self._show_tables()
-        # ← nuevo: SHOW <nombre_tabla>
-        return self._show_registros(partes[0].lower())
-
-    def _show_registros(self, nombre_tabla):
-        if nombre_tabla not in self.tablas:
-            return {"error": f"Tabla '{nombre_tabla}' no existe"}
-        sm = self.tablas[nombre_tabla]
-        registros = list(sm.registros.values())
-        if not registros:
-            return {
-                "tipo":    "select",
-                "datos":   [],
-                "mensaje": f"La tabla '{nombre_tabla}' está vacía",
-                "arbol":   "-"
-            }
-        # sin mensaje → cae directo en la tabla del frontend
-        return {
-            "tipo":  "select",
-            "datos": registros,
-            "arbol": "-"
-        }
+        return {"error": "Uso: SHOW TREE <árbol> | SHOW TABLE|TABLES"}
 
     def _use(self, partes):
         if not partes:
