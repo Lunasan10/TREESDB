@@ -369,8 +369,7 @@ class QueryEngine:
         if not tablas:
             return {"error": "Archivo inválido: la sección 'tablas' no puede estar vacía"}
 
-        tablas_anteriores = self.tablas
-        tabla_activa_anterior = self.tabla_activa
+        activa = datos.get("tabla_activa")
         try:
             nuevas_tablas = {}
             for nombre, estado_tabla in tablas.items():
@@ -383,8 +382,6 @@ class QueryEngine:
             self.tablas = tablas_anteriores
             self.tabla_activa = tabla_activa_anterior
             return {"error": f"LOAD falló, estado restaurado: {e}"}
-        activa = datos.get("tabla_activa")
-        self.tabla_activa = activa if activa in self.tablas else next(iter(self.tablas))
         return {"tipo": "load", "datos": [], "mensaje": f"Estado cargado desde '{nombre_archivo}'", "arbol": "-"}
 
     def _help(self, partes):
@@ -438,4 +435,5 @@ class QueryEngine:
             clave = posible if posible in temas else partes[0].upper()
 
         texto = temas.get(clave, f"No hay ayuda para '{clave}'. Escribe HELP para ver todo.")
+        return {"tipo": "help", "datos": [], "mensaje": texto}
         return {"tipo": "help", "datos": [], "mensaje": texto}
