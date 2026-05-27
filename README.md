@@ -1,10 +1,5 @@
 # 🌳 TRESDB
 > *Motor de base de datos basado en árboles auto-balanceados*
->>>>>>> parent of 68580ac (fix: Indentation errors in query_engine.py)
-=======
-# 🌳 TRESDB
-> *Motor de base de datos basado en árboles auto-balanceados*
->>>>>>> parent of 68580ac (fix: Indentation errors in query_engine.py)
 
 Motor de base de datos construido desde cero sobre 4 árboles autobalanceados. Cada operación usa la estructura más eficiente para esa tarea.
 
