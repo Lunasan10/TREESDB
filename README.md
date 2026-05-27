@@ -1,6 +1,6 @@
-<<<<<<< HEAD
-# 🌳 TREEDB
-> *Base de datos basada en árboles auto-balanceados*
+# 🌳 TRESDB
+> *Motor de base de datos basado en árboles auto-balanceados*
+>>>>>>> parent of 68580ac (fix: Indentation errors in query_engine.py)
 =======
 # 🌳 TRESDB
 > *Motor de base de datos basado en árboles auto-balanceados*
